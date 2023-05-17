@@ -1,0 +1,19 @@
+// Copyright EPFL
+// Licensed under the Solderpad Hardware License v2.1, see LICENSE.txt for details
+// SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+
+{
+  name: "keccak",
+  target_dir: "polito_keccak",
+
+  upstream: {
+    url: "https://github.com/aledolme/pqc_accelerator.git", 
+    rev: "main",
+  },
+
+  exclude_from_upstream: [
+    ".gitattributes",
+    "README.md",
+    ".gitignore"
+  ]
+}
