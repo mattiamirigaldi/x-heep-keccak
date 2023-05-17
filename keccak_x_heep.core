@@ -4,18 +4,20 @@ CAPI=2:
 # Solderpad Hardware License, Version 2.1, see LICENSE.md for details.
 # SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
 
-name: eslepfl:systems:cgra-x-heep
-description: CGRA X-HEEP Top.
+# Modified by Alessandra Dolmeta: alessandra.dolmeta@polito.it
+
+name: keccak-x-heep
+description: KECCAK X-HEEP Top.
 
 filesets:
   files_rtl_generic:
     depend:
     - x-heep::packages
     - openhwgroup.org:systems:core-v-mini-mcu
-    - eslepfl::cgra
+    - polito::keccak
     files:
-    - hw/rtl/cgra_x_heep_pkg.sv
-    - hw/rtl/cgra_x_heep_top.sv
+    - hw/rtl/keccak_x_heep_pkg.sv
+    - hw/rtl/keccak_x_heep_top.sv
     file_type: systemVerilogSource
 
   x_heep_system:
@@ -33,10 +35,6 @@ filesets:
     - tb/testharness.sv
     file_type: systemVerilogSource
 
-  files_verilator_waiver:
-    files:
-    - tb/tb.vlt
-    file_type: vlt
 
   systemverilog_only_simjtag:
     depend:
@@ -135,7 +133,7 @@ targets:
   default: &default_target
     filesets:
     - files_rtl_generic
-    toplevel: [cgra_x_heep_top]
+    toplevel: [keccak_x_heep_top]
 
   sim:
     <<: *default_target
@@ -186,6 +184,7 @@ targets:
         vsim_options:
         - -sv_lib ../../../hw/vendor/esl_epfl_x_heep/hw/vendor/lowrisc_opentitan/hw/dv/dpi/uartdpi/uartdpi
         - -sv_lib ../../../hw/vendor/esl_epfl_x_heep/hw/vendor/pulp_platform_pulpissimo/rtl/tb/remote_bitbang/librbs
+        - -voptargs=+acc
       vcs:
         vcs_options:
          - -override_timescale=1ns/1ps

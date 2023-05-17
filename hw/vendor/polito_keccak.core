@@ -4,7 +4,9 @@ CAPI=2:
 # Solderpad Hardware License, Version 2.1, see LICENSE.md for details.
 # SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
 
-name: "eslepfl::keccak"
+# Modified by Alessandra Dolmeta: alessandra.dolmeta@polito.it
+
+name: "polito::keccak"
 description: "KECCAK HDL"
 
 filesets:
@@ -13,47 +15,26 @@ filesets:
     - x-heep::packages
     - pulp-platform.org::common_cells:1.26.0
     files:
-    - polito_keccak/keccak/keccak.vhd
-    - polito_keccak/keccak/
-    - polito_keccak/keccak/
-    - polito_keccak/keccak/
-    - polito_keccak/keccak/
-    - polito_keccak/keccak/
-    - polito_keccak/keccak/
-    - polito_keccak/keccak/
-    
-    
-    - esl_epfl_cgra/rtl/cgra_pkg.sv
-    - esl_epfl_cgra/rtl/cgra_reg_pkg.sv
-    - esl_epfl_cgra/rtl/cgra_reg_top.sv
-    - esl_epfl_cgra/rtl/peripheral_regs.sv
-    - esl_epfl_cgra/rtl/program_counter.sv
-    - esl_epfl_cgra/rtl/alu.sv
-    - esl_epfl_cgra/rtl/reg_file.sv
-    - esl_epfl_cgra/rtl/mux.sv
-    - esl_epfl_cgra/rtl/datapath.sv
-    - esl_epfl_cgra/rtl/conf_reg_file.sv
-    - esl_epfl_cgra/rtl/reconfigurable_cell.sv
-    - esl_epfl_cgra/rtl/data_bus_handler.sv
-    - esl_epfl_cgra/rtl/synchronizer.sv
-    - esl_epfl_cgra/rtl/cgra_controller.sv
-    - esl_epfl_cgra/rtl/cgra.sv
-    - esl_epfl_cgra/rtl/context_memory_decoder.sv
-    - esl_epfl_cgra/rtl/cgra_top.sv
-    - esl_epfl_cgra/rtl/context_memory.sv
-    - esl_epfl_cgra/wrapper/cgra_top_wrapper.sv
+    - polito_keccak/keccak/rtl/keccak_globals.vhd
+    - polito_keccak/keccak/rtl/keccak_reg_pkg.sv
+    - polito_keccak/keccak/rtl/keccak_reg_top.sv
+    - polito_keccak/keccak/rtl/keccak_round_constant_gen.vhd
+    - polito_keccak/keccak/rtl/keccak_round.vhd
+    - polito_keccak/keccak/rtl/keccak_datapath.vhd
+    - polito_keccak/keccak/rtl/keccak_cu.sv
+    - polito_keccak/keccak/rtl/keccak_top.sv
     file_type: systemVerilogSource
-
+    
 
   files_behav_rtl:
     files:
-    - esl_epfl_cgra/eda/HDL/tech_lib/clkgate/rtl/cgra_clock_gate.sv
-    - esl_epfl_cgra/sim/cgra_sram_wrapper.sv
+    - polito_keccak/keccak/eda/HDL/tech_lib/clkgate/rtl/keccak_clock_gate.sv
+    - polito_keccak/keccak//sim/keccak_sram_wrapper.sv
     file_type: systemVerilogSource
 
   files_verilator_waiver:
     files:
-    - esl_epfl_cgra/lint/cgra.vlt
+    - polito_keccak/keccak/lint/keccak.vlt
     file_type: vlt
 
 targets:
