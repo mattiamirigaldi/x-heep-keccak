@@ -37,6 +37,7 @@ mcu-gen:
 
 # Runs verible formating
 verible:
+	cd hw/vendor/esl_epfl_x_heep && \
 	util/format-verible;
 
 app-helloworld:
@@ -45,20 +46,23 @@ app-helloworld:
 app-keccak:
 	$(MAKE) -C sw applications/keccak_test/main.hex  TARGET=$(TARGET)
 
+app-kyber768keygen: clean-app
+	$(MAKE) -C sw PROJECT=kyber768keygen TARGET=$(TARGET) LINKER=$(LINKER) COMPILER=$(COMPILER) ARCH=$(ARCH) SOURCE=$(SOURCE)
+
 # Tools specific fusesoc call
 
 # Simulation
 verilator-sim: mcu-gen
-	fusesoc --cores-root . run --no-export --target=sim --tool=verilator $(FUSESOC_FLAGS) --setup --build keccak-x-heep 2>&1 | tee buildsim.log
+	fusesoc --cores-root . run --no-export --target=sim --tool=verilator $(FUSESOC_FLAGS) --setup --build pqc-x-heep 2>&1 | tee buildsim.log
 
 questasim-sim: mcu-gen
-	fusesoc --cores-root . run --no-export --target=sim --tool=modelsim $(FUSESOC_FLAGS) --setup --build keccak-x-heep 2>&1 | tee buildsim.log
+	fusesoc --cores-root . run --no-export --target=sim --tool=modelsim $(FUSESOC_FLAGS) --setup --build pqc-x-heep 2>&1 | tee buildsim.log
 
 questasim-sim-opt: questasim-sim
-	$(MAKE) -C build/system_keccak_x_heep/sim-modelsim opt
+	$(MAKE) -C build/systems_keccak-x-heep_0/sim-modelsim opt
 
 vcs-sim:
-	fusesoc --cores-root . run --no-export --target=sim --tool=vcs $(FUSESOC_FLAGS) --setup --build keccak-x-heep 2>&1 | tee buildsim.log
+	fusesoc --cores-root . run --no-export --target=sim --tool=vcs $(FUSESOC_FLAGS) --setup --build pqc-x-heep 2>&1 | tee buildsim.log
 
 run-helloworld-verilator: mcu-gen verilator-sim app-helloworld
 	cd ./build/system_keccak_x_heep/sim-verilator; \
@@ -78,9 +82,15 @@ run-helloworld-questasim: mcu-gen questasim-sim app-helloworld
 	cat uart0.log; \
 	cd ../../..;
 
-run-keccak-questasim: mcu-gen questasim-sim app-keccak
+run-keccak-questasim: mcu-gen MEMORY_BANKS=4 questasim-sim app-keccak
 	cd ./build/system_keccak_x_heep/sim-modelsim; \
 	make run-gui PLUSARGS="c firmware=../../../sw/applications/keccak_test/main.hex"; \
+	cat uart0.log; \
+	cd ../../..;
+ 
+run-kyber768keygen: mcu-gen verilator-sim
+	cd ./build/openhwgroup.org_systems_core-v-mini-mcu_0/sim-verilator; \
+	./Vtestharness +firmware=../../../sw/build/main.hex; \
 	cat uart0.log; \
 	cd ../../..;
  
