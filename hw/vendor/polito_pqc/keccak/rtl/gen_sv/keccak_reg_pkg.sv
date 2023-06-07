@@ -6,13 +6,13 @@
 
 package keccak_reg_pkg;
 
-  // Param list
-  parameter int DIN = 50;
-  parameter int DOUT = 50;
+  // Address widths within the block
+  parameter int BlockAw = 9;
 
   ////////////////////////////
   // Typedefs for registers //
   ////////////////////////////
+
   typedef struct packed {
     logic [31:0] q;
   } keccak_reg2hw_din_mreg_t;
@@ -22,7 +22,6 @@ package keccak_reg_pkg;
     logic        qe;
   } keccak_reg2hw_ctrl_reg_t;
 
-
   typedef struct packed {
     logic [31:0] d;
   } keccak_hw2reg_dout_mreg_t;
@@ -31,129 +30,177 @@ package keccak_reg_pkg;
     logic        d;
   } keccak_hw2reg_status_reg_t;
 
-
-  ///////////////////////////////////////
-  // Register to internal design logic //
-  ///////////////////////////////////////
+  // Register -> HW type
   typedef struct packed {
-    keccak_reg2hw_din_mreg_t [49:0] din; // [1602:3]
-    keccak_reg2hw_ctrl_reg_t ctrl; // [2:1]
+    keccak_reg2hw_din_mreg_t [49:0] din; // [1601:2]
+    keccak_reg2hw_ctrl_reg_t ctrl; // [1:0]
   } keccak_reg2hw_t;
 
-  ///////////////////////////////////////
-  // Internal design logic to register //
-  ///////////////////////////////////////
+  // HW -> register type
   typedef struct packed {
-    keccak_hw2reg_dout_mreg_t [49:0] dout; // [1601:2]
-    keccak_hw2reg_status_reg_t status; // [1:2]
+    keccak_hw2reg_dout_mreg_t [49:0] dout; // [1600:1]
+    keccak_hw2reg_status_reg_t status; // [0:0]
   } keccak_hw2reg_t;
 
-  // Register Address
-  parameter logic [8:0] KECCAK_DIN_0_OFFSET = 9'h 0;
-  parameter logic [8:0] KECCAK_DIN_1_OFFSET = 9'h 4;
-  parameter logic [8:0] KECCAK_DIN_2_OFFSET = 9'h 8;
-  parameter logic [8:0] KECCAK_DIN_3_OFFSET = 9'h c;
-  parameter logic [8:0] KECCAK_DIN_4_OFFSET = 9'h 10;
-  parameter logic [8:0] KECCAK_DIN_5_OFFSET = 9'h 14;
-  parameter logic [8:0] KECCAK_DIN_6_OFFSET = 9'h 18;
-  parameter logic [8:0] KECCAK_DIN_7_OFFSET = 9'h 1c;
-  parameter logic [8:0] KECCAK_DIN_8_OFFSET = 9'h 20;
-  parameter logic [8:0] KECCAK_DIN_9_OFFSET = 9'h 24;
-  parameter logic [8:0] KECCAK_DIN_10_OFFSET = 9'h 28;
-  parameter logic [8:0] KECCAK_DIN_11_OFFSET = 9'h 2c;
-  parameter logic [8:0] KECCAK_DIN_12_OFFSET = 9'h 30;
-  parameter logic [8:0] KECCAK_DIN_13_OFFSET = 9'h 34;
-  parameter logic [8:0] KECCAK_DIN_14_OFFSET = 9'h 38;
-  parameter logic [8:0] KECCAK_DIN_15_OFFSET = 9'h 3c;
-  parameter logic [8:0] KECCAK_DIN_16_OFFSET = 9'h 40;
-  parameter logic [8:0] KECCAK_DIN_17_OFFSET = 9'h 44;
-  parameter logic [8:0] KECCAK_DIN_18_OFFSET = 9'h 48;
-  parameter logic [8:0] KECCAK_DIN_19_OFFSET = 9'h 4c;
-  parameter logic [8:0] KECCAK_DIN_20_OFFSET = 9'h 50;
-  parameter logic [8:0] KECCAK_DIN_21_OFFSET = 9'h 54;
-  parameter logic [8:0] KECCAK_DIN_22_OFFSET = 9'h 58;
-  parameter logic [8:0] KECCAK_DIN_23_OFFSET = 9'h 5c;
-  parameter logic [8:0] KECCAK_DIN_24_OFFSET = 9'h 60;
-  parameter logic [8:0] KECCAK_DIN_25_OFFSET = 9'h 64;
-  parameter logic [8:0] KECCAK_DIN_26_OFFSET = 9'h 68;
-  parameter logic [8:0] KECCAK_DIN_27_OFFSET = 9'h 6c;
-  parameter logic [8:0] KECCAK_DIN_28_OFFSET = 9'h 70;
-  parameter logic [8:0] KECCAK_DIN_29_OFFSET = 9'h 74;
-  parameter logic [8:0] KECCAK_DIN_30_OFFSET = 9'h 78;
-  parameter logic [8:0] KECCAK_DIN_31_OFFSET = 9'h 7c;
-  parameter logic [8:0] KECCAK_DIN_32_OFFSET = 9'h 80;
-  parameter logic [8:0] KECCAK_DIN_33_OFFSET = 9'h 84;
-  parameter logic [8:0] KECCAK_DIN_34_OFFSET = 9'h 88;
-  parameter logic [8:0] KECCAK_DIN_35_OFFSET = 9'h 8c;
-  parameter logic [8:0] KECCAK_DIN_36_OFFSET = 9'h 90;
-  parameter logic [8:0] KECCAK_DIN_37_OFFSET = 9'h 94;
-  parameter logic [8:0] KECCAK_DIN_38_OFFSET = 9'h 98;
-  parameter logic [8:0] KECCAK_DIN_39_OFFSET = 9'h 9c;
-  parameter logic [8:0] KECCAK_DIN_40_OFFSET = 9'h a0;
-  parameter logic [8:0] KECCAK_DIN_41_OFFSET = 9'h a4;
-  parameter logic [8:0] KECCAK_DIN_42_OFFSET = 9'h a8;
-  parameter logic [8:0] KECCAK_DIN_43_OFFSET = 9'h ac;
-  parameter logic [8:0] KECCAK_DIN_44_OFFSET = 9'h b0;
-  parameter logic [8:0] KECCAK_DIN_45_OFFSET = 9'h b4;
-  parameter logic [8:0] KECCAK_DIN_46_OFFSET = 9'h b8;
-  parameter logic [8:0] KECCAK_DIN_47_OFFSET = 9'h bc;
-  parameter logic [8:0] KECCAK_DIN_48_OFFSET = 9'h c0;
-  parameter logic [8:0] KECCAK_DIN_49_OFFSET = 9'h c4;
-  parameter logic [8:0] KECCAK_DOUT_0_OFFSET = 9'h c8;
-  parameter logic [8:0] KECCAK_DOUT_1_OFFSET = 9'h cc;
-  parameter logic [8:0] KECCAK_DOUT_2_OFFSET = 9'h d0;
-  parameter logic [8:0] KECCAK_DOUT_3_OFFSET = 9'h d4;
-  parameter logic [8:0] KECCAK_DOUT_4_OFFSET = 9'h d8;
-  parameter logic [8:0] KECCAK_DOUT_5_OFFSET = 9'h dc;
-  parameter logic [8:0] KECCAK_DOUT_6_OFFSET = 9'h e0;
-  parameter logic [8:0] KECCAK_DOUT_7_OFFSET = 9'h e4;
-  parameter logic [8:0] KECCAK_DOUT_8_OFFSET = 9'h e8;
-  parameter logic [8:0] KECCAK_DOUT_9_OFFSET = 9'h ec;
-  parameter logic [8:0] KECCAK_DOUT_10_OFFSET = 9'h f0;
-  parameter logic [8:0] KECCAK_DOUT_11_OFFSET = 9'h f4;
-  parameter logic [8:0] KECCAK_DOUT_12_OFFSET = 9'h f8;
-  parameter logic [8:0] KECCAK_DOUT_13_OFFSET = 9'h fc;
-  parameter logic [8:0] KECCAK_DOUT_14_OFFSET = 9'h 100;
-  parameter logic [8:0] KECCAK_DOUT_15_OFFSET = 9'h 104;
-  parameter logic [8:0] KECCAK_DOUT_16_OFFSET = 9'h 108;
-  parameter logic [8:0] KECCAK_DOUT_17_OFFSET = 9'h 10c;
-  parameter logic [8:0] KECCAK_DOUT_18_OFFSET = 9'h 110;
-  parameter logic [8:0] KECCAK_DOUT_19_OFFSET = 9'h 114;
-  parameter logic [8:0] KECCAK_DOUT_20_OFFSET = 9'h 118;
-  parameter logic [8:0] KECCAK_DOUT_21_OFFSET = 9'h 11c;
-  parameter logic [8:0] KECCAK_DOUT_22_OFFSET = 9'h 120;
-  parameter logic [8:0] KECCAK_DOUT_23_OFFSET = 9'h 124;
-  parameter logic [8:0] KECCAK_DOUT_24_OFFSET = 9'h 128;
-  parameter logic [8:0] KECCAK_DOUT_25_OFFSET = 9'h 12c;
-  parameter logic [8:0] KECCAK_DOUT_26_OFFSET = 9'h 130;
-  parameter logic [8:0] KECCAK_DOUT_27_OFFSET = 9'h 134;
-  parameter logic [8:0] KECCAK_DOUT_28_OFFSET = 9'h 138;
-  parameter logic [8:0] KECCAK_DOUT_29_OFFSET = 9'h 13c;
-  parameter logic [8:0] KECCAK_DOUT_30_OFFSET = 9'h 140;
-  parameter logic [8:0] KECCAK_DOUT_31_OFFSET = 9'h 144;
-  parameter logic [8:0] KECCAK_DOUT_32_OFFSET = 9'h 148;
-  parameter logic [8:0] KECCAK_DOUT_33_OFFSET = 9'h 14c;
-  parameter logic [8:0] KECCAK_DOUT_34_OFFSET = 9'h 150;
-  parameter logic [8:0] KECCAK_DOUT_35_OFFSET = 9'h 154;
-  parameter logic [8:0] KECCAK_DOUT_36_OFFSET = 9'h 158;
-  parameter logic [8:0] KECCAK_DOUT_37_OFFSET = 9'h 15c;
-  parameter logic [8:0] KECCAK_DOUT_38_OFFSET = 9'h 160;
-  parameter logic [8:0] KECCAK_DOUT_39_OFFSET = 9'h 164;
-  parameter logic [8:0] KECCAK_DOUT_40_OFFSET = 9'h 168;
-  parameter logic [8:0] KECCAK_DOUT_41_OFFSET = 9'h 16c;
-  parameter logic [8:0] KECCAK_DOUT_42_OFFSET = 9'h 170;
-  parameter logic [8:0] KECCAK_DOUT_43_OFFSET = 9'h 174;
-  parameter logic [8:0] KECCAK_DOUT_44_OFFSET = 9'h 178;
-  parameter logic [8:0] KECCAK_DOUT_45_OFFSET = 9'h 17c;
-  parameter logic [8:0] KECCAK_DOUT_46_OFFSET = 9'h 180;
-  parameter logic [8:0] KECCAK_DOUT_47_OFFSET = 9'h 184;
-  parameter logic [8:0] KECCAK_DOUT_48_OFFSET = 9'h 188;
-  parameter logic [8:0] KECCAK_DOUT_49_OFFSET = 9'h 18c;
-  parameter logic [8:0] KECCAK_CTRL_OFFSET = 9'h 190;
-  parameter logic [8:0] KECCAK_STATUS_OFFSET = 9'h 194;
+  // Register offsets
+  parameter logic [BlockAw-1:0] KECCAK_DIN_0_OFFSET = 9'h 0;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_1_OFFSET = 9'h 4;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_2_OFFSET = 9'h 8;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_3_OFFSET = 9'h c;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_4_OFFSET = 9'h 10;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_5_OFFSET = 9'h 14;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_6_OFFSET = 9'h 18;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_7_OFFSET = 9'h 1c;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_8_OFFSET = 9'h 20;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_9_OFFSET = 9'h 24;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_10_OFFSET = 9'h 28;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_11_OFFSET = 9'h 2c;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_12_OFFSET = 9'h 30;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_13_OFFSET = 9'h 34;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_14_OFFSET = 9'h 38;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_15_OFFSET = 9'h 3c;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_16_OFFSET = 9'h 40;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_17_OFFSET = 9'h 44;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_18_OFFSET = 9'h 48;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_19_OFFSET = 9'h 4c;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_20_OFFSET = 9'h 50;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_21_OFFSET = 9'h 54;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_22_OFFSET = 9'h 58;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_23_OFFSET = 9'h 5c;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_24_OFFSET = 9'h 60;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_25_OFFSET = 9'h 64;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_26_OFFSET = 9'h 68;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_27_OFFSET = 9'h 6c;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_28_OFFSET = 9'h 70;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_29_OFFSET = 9'h 74;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_30_OFFSET = 9'h 78;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_31_OFFSET = 9'h 7c;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_32_OFFSET = 9'h 80;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_33_OFFSET = 9'h 84;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_34_OFFSET = 9'h 88;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_35_OFFSET = 9'h 8c;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_36_OFFSET = 9'h 90;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_37_OFFSET = 9'h 94;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_38_OFFSET = 9'h 98;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_39_OFFSET = 9'h 9c;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_40_OFFSET = 9'h a0;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_41_OFFSET = 9'h a4;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_42_OFFSET = 9'h a8;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_43_OFFSET = 9'h ac;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_44_OFFSET = 9'h b0;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_45_OFFSET = 9'h b4;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_46_OFFSET = 9'h b8;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_47_OFFSET = 9'h bc;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_48_OFFSET = 9'h c0;
+  parameter logic [BlockAw-1:0] KECCAK_DIN_49_OFFSET = 9'h c4;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_0_OFFSET = 9'h c8;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_1_OFFSET = 9'h cc;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_2_OFFSET = 9'h d0;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_3_OFFSET = 9'h d4;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_4_OFFSET = 9'h d8;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_5_OFFSET = 9'h dc;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_6_OFFSET = 9'h e0;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_7_OFFSET = 9'h e4;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_8_OFFSET = 9'h e8;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_9_OFFSET = 9'h ec;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_10_OFFSET = 9'h f0;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_11_OFFSET = 9'h f4;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_12_OFFSET = 9'h f8;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_13_OFFSET = 9'h fc;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_14_OFFSET = 9'h 100;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_15_OFFSET = 9'h 104;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_16_OFFSET = 9'h 108;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_17_OFFSET = 9'h 10c;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_18_OFFSET = 9'h 110;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_19_OFFSET = 9'h 114;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_20_OFFSET = 9'h 118;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_21_OFFSET = 9'h 11c;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_22_OFFSET = 9'h 120;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_23_OFFSET = 9'h 124;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_24_OFFSET = 9'h 128;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_25_OFFSET = 9'h 12c;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_26_OFFSET = 9'h 130;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_27_OFFSET = 9'h 134;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_28_OFFSET = 9'h 138;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_29_OFFSET = 9'h 13c;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_30_OFFSET = 9'h 140;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_31_OFFSET = 9'h 144;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_32_OFFSET = 9'h 148;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_33_OFFSET = 9'h 14c;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_34_OFFSET = 9'h 150;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_35_OFFSET = 9'h 154;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_36_OFFSET = 9'h 158;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_37_OFFSET = 9'h 15c;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_38_OFFSET = 9'h 160;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_39_OFFSET = 9'h 164;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_40_OFFSET = 9'h 168;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_41_OFFSET = 9'h 16c;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_42_OFFSET = 9'h 170;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_43_OFFSET = 9'h 174;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_44_OFFSET = 9'h 178;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_45_OFFSET = 9'h 17c;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_46_OFFSET = 9'h 180;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_47_OFFSET = 9'h 184;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_48_OFFSET = 9'h 188;
+  parameter logic [BlockAw-1:0] KECCAK_DOUT_49_OFFSET = 9'h 18c;
+  parameter logic [BlockAw-1:0] KECCAK_CTRL_OFFSET = 9'h 190;
+  parameter logic [BlockAw-1:0] KECCAK_STATUS_OFFSET = 9'h 194;
 
+  // Reset values for hwext registers and their fields
+  parameter logic [31:0] KECCAK_DOUT_0_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_1_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_2_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_3_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_4_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_5_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_6_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_7_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_8_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_9_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_10_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_11_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_12_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_13_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_14_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_15_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_16_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_17_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_18_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_19_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_20_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_21_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_22_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_23_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_24_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_25_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_26_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_27_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_28_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_29_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_30_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_31_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_32_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_33_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_34_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_35_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_36_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_37_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_38_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_39_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_40_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_41_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_42_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_43_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_44_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_45_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_46_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_47_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_48_RESVAL = 32'h 0;
+  parameter logic [31:0] KECCAK_DOUT_49_RESVAL = 32'h 0;
+  parameter logic [0:0] KECCAK_CTRL_RESVAL = 1'h 0;
+  parameter logic [0:0] KECCAK_STATUS_RESVAL = 1'h 0;
 
-  // Register Index
+  // Register index
   typedef enum int {
     KECCAK_DIN_0,
     KECCAK_DIN_1,
@@ -364,5 +411,6 @@ package keccak_reg_pkg;
     4'b 0001, // index[100] KECCAK_CTRL
     4'b 0001  // index[101] KECCAK_STATUS
   };
+
 endpackage
 
