@@ -2,7 +2,9 @@
 // Solderpad Hardware License, Version 2.1, see LICENSE.md for details.
 // SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
 
-// Modified by Alessandra Dolmeta: alessandra.dolmeta@polito.it
+// Designed by Alessandra Dolmeta, Mattia Mirigaldi
+// alessandra.dolmeta@polito.it, mattiamirigaldi.98017@gmail.com
+//
 
 module keccak_x_heep_top #(
     parameter PULP_XPULP = 0,
@@ -61,11 +63,6 @@ module keccak_x_heep_top #(
   logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0] external_subsystem_rst_n;
   logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0] external_ram_banks_set_retentive;
 
-  logic keccak_int;
-  logic keccak_enable;
-  logic keccak_logic_rst_n;
-  logic keccak_ram_banks_set_retentive;
-
   always_comb begin
     // All interrupt lines set to zero by default
     for (int i = 0; i < core_v_mini_mcu_pkg::NEXT_INT; i++) begin
@@ -75,24 +72,11 @@ module keccak_x_heep_top #(
     ext_intr_vector[0] = keccak_int;
   end
 
-  // keccak logic clock gating unit enable (always-on in this case)
-  assign keccak_enable = 1'b1;
-  assign keccak_logic_rst_n = external_subsystem_rst_n[0];
-  assign keccak_ram_banks_set_retentive = external_ram_banks_set_retentive[0];
-
-  keccak_top_wrapper keccak_top_wrapper_i (
+  keccak_top keccak_top_wrapper_i (
       .clk_i,
       .rst_ni,
-      .keccak_enable_i(keccak_enable),
-      .rst_logic_ni(keccak_logic_rst_n),
-      .masters_req_o(ext_xbar_master_req),
-      .masters_resp_i(ext_xbar_master_resp),
       .reg_req_i(ext_periph_slave_req),
-      .reg_rsp_o(ext_periph_slave_resp),
-      .slave_req_i(ext_xbar_slave_req),
-      .slave_resp_o(ext_xbar_slave_resp),
-      .cmem_set_retentive_i(keccak_ram_banks_set_retentive),
-      .keccak_int_o(keccak_int)
+      .reg_rsp_o(ext_periph_slave_resp)
   );
 
   x_heep_system #(
@@ -174,4 +158,4 @@ module keccak_x_heep_top #(
       .external_ram_banks_set_retentive_o(external_ram_banks_set_retentive)
   );
 
-endmodule  // keccak_x_heep_top_pkg
+endmodule  

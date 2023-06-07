@@ -4,8 +4,6 @@ CAPI=2:
 # Solderpad Hardware License, Version 2.1, see LICENSE.md for details.
 # SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
 
-# Modified by Alessandra Dolmeta: alessandra.dolmeta@polito.it
-
 name: "polito::pqc-x-heep"
 description: "PQC HDL"
 
@@ -16,8 +14,8 @@ filesets:
     - x-heep::packages
     - pulp-platform.org::common_cells:1.26.0
     files:
-    - polito_pqc/keccak/rtl/keccak_reg_pkg.sv
-    - polito_pqc/keccak/rtl/keccak_reg_top.sv
+    - polito_pqc/keccak/rtl/gen_sv/keccak_reg_pkg.sv
+    - polito_pqc/keccak/rtl/gen_sv/keccak_reg_top.sv
     - polito_pqc/keccak/rtl/keccak_cu.sv
     - polito_pqc/keccak/rtl/keccak_top.sv
     file_type: systemVerilogSource
@@ -31,6 +29,7 @@ filesets:
     - polito_pqc/keccak/rtl/keccak_round_constant_gen.vhd
     - polito_pqc/keccak/rtl/keccak_round.vhd
     - polito_pqc/keccak/rtl/keccak_datapath.vhd
+    - polito_pqc/keccak/rtl/keccak.vhd
     - polito_pqc/ntt_intt_pwm/rtl/BRAM.vhd
     - polito_pqc/ntt_intt_pwm/rtl/BROM_TW.vhd
     - polito_pqc/ntt_intt_pwm/rtl/adder.vhd

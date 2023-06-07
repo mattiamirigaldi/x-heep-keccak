@@ -53,7 +53,7 @@ app-kyber768keygen: clean-app
 
 # Simulation
 verilator-sim: mcu-gen
-	fusesoc --cores-root . run --no-export --target=sim --tool=verilator $(FUSESOC_FLAGS) --setup --build pqc-x-heep 2>&1 | tee buildsim.log
+	fusesoc --cores-root . run --no-export --target=sim --tool=verilator $(FUSESOC_FLAGS) --setup --build polito:systems:keccak_pqc 2>&1 | tee buildsim.log
 
 questasim-sim: mcu-gen
 	fusesoc --cores-root . run --no-export --target=sim --tool=modelsim $(FUSESOC_FLAGS) --setup --build pqc-x-heep 2>&1 | tee buildsim.log

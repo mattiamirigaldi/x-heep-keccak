@@ -2,15 +2,18 @@
 #include <inttypes.h>
 #include <string.h>
 
-#include "keccak.h"
+#include "./../../external/keccak/keccak_driver.h"
 
 int main(){
 
 	uint32_t Din[50];
+	uint32_t Dout[50];
+
 	uint32_t D_expected[50];
 	int i = 0;
 
 	memset(Din, 0, sizeof(Din));
+	memset(Dout, 0, sizeof(Dout));
 	memset(D_expected, 0, sizeof(D_expected));
 	
  
@@ -72,8 +75,8 @@ int main(){
 	D_expected[48] = 0x0271BFE2;
 	D_expected[49] = 0x84B1B424;
 
-
-    KeccakF1600_StatePermute(Din);	
+	printf("Hello Keccak !\n");
+    KeccakF1600_StatePermute(Din,Dout);	
 
 	for (i = 0; i< 50; i++ ){
 		if (Din[i] != D_expected[i]){
