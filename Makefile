@@ -56,7 +56,7 @@ verilator-sim: mcu-gen
 	fusesoc --cores-root . run --no-export --target=sim --tool=verilator $(FUSESOC_FLAGS) --setup --build polito:systems:keccak_pqc 2>&1 | tee buildsim.log
 
 questasim-sim: mcu-gen
-	fusesoc --cores-root . run --no-export --target=sim --tool=modelsim $(FUSESOC_FLAGS) --setup --build pqc-x-heep 2>&1 | tee buildsim.log
+	fusesoc --cores-root . run --no-export --target=sim --tool=modelsim $(FUSESOC_FLAGS) --setup --build polito:systems:keccak_pqc 2>&1 | tee buildsim.log
 
 questasim-sim-opt: questasim-sim
 	$(MAKE) -C build/systems_keccak-x-heep_0/sim-modelsim opt
@@ -65,26 +65,26 @@ vcs-sim:
 	fusesoc --cores-root . run --no-export --target=sim --tool=vcs $(FUSESOC_FLAGS) --setup --build pqc-x-heep 2>&1 | tee buildsim.log
 
 run-helloworld-verilator: mcu-gen verilator-sim app-helloworld
-	cd ./build/system_keccak_x_heep/sim-verilator; \
+	cd ./build/polito_system_keccak_pqc_0/sim-verilator; \
 	./Vtestharness +firmware=../../../sw/x_heep_applications/hello_world/hello_world.hex; \
 	cat uart0.log; \
 	cd ../../..;
 
 run-keccak-verilator: mcu-gen verilator-sim app-keccak
-	cd ./build/system_keccak_x_heep/sim-verilator; \
+	cd ./build/polito_system_keccak_x_heep/sim-verilator; \
 	./Vtestharness +firmware=../../../sw/applications/keccak_test/main.hex; \
 	cat uart0.log; \
 	cd ../../..;
 
 run-helloworld-questasim: mcu-gen questasim-sim app-helloworld
-	cd ./build/system_keccak_x_heep/sim-modelsim; \
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
 	make run PLUSARGS="c firmware=../../../sw/x_heep_applications/hello_world/hello_world.hex"; \
 	cat uart0.log; \
 	cd ../../..;
 
-run-keccak-questasim: mcu-gen MEMORY_BANKS=4 questasim-sim app-keccak
-	cd ./build/system_keccak_x_heep/sim-modelsim; \
-	make run-gui PLUSARGS="c firmware=../../../sw/applications/keccak_test/main.hex"; \
+run-keccak-questasim: mcu-gen questasim-sim app-keccak
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
+	make run PLUSARGS="c firmware=../../../sw/applications/keccak_test/main.hex"; \
 	cat uart0.log; \
 	cd ../../..;
  

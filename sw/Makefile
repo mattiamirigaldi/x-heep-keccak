@@ -44,7 +44,7 @@ LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/fast_intr_ctr
 LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/spi_mem/*.c)
 LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/spi_host/*.c)
 LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/pad_control/*.c)
-LIB_DRIVERS                += $(wildcard device/lib/drivers/cgra/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/keccak/*.c)
 # LIB_DRIVERS                += $(wildcard device/lib/drivers/heepocrates_ctrl/*.c)
 INC_FOLDERS                = $(sort $(dir $(wildcard x_heep_device/target/$(TARGET)/)))
 INC_FOLDERS                += $(sort $(dir $(wildcard x_heep_device/lib/drivers/*/)))
@@ -107,7 +107,7 @@ x_heep_applications/hello_world/hello_world.flash_exec.elf: x_heep_applications/
 		-L $(RISCV)/riscv32-unknown-elf/lib \
 		-lc -lm -lgcc -flto -ffunction-sections -fdata-sections -specs=nano.specs
 
-applications/keccak_test/main.elf: applications/keccak_test/main.c applications/keccak_test/keccak.c
+applications/keccak_test/main.elf: applications/keccak_test/main.c 
 	$(RISCV_EXE_PREFIX)gcc -march=rv32imc -o $@ -w -Os -g -nostdlib \
 		$(CUSTOM_GCC_FLAGS) \
 		-DHOST_BUILD \

@@ -59,7 +59,7 @@ module testharness #(
       .PULP_XPULP(PULP_XPULP),
       .FPU(FPU),
       .PULP_ZFINX(PULP_ZFINX)
-  ) cgra_x_heep_top_i (
+  ) keccak_x_heep_top_i (
       .clk_i,
       .rst_ni,
 
@@ -105,9 +105,9 @@ module testharness #(
   logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0] delayed_tb_external_subsystem_powergate_switch_ack;
 
   always_ff @(negedge clk_i) begin
-    tb_cpu_subsystem_powergate_switch_ack[0] <= cgra_x_heep_top_i.x_heep_system_i.cpu_subsystem_powergate_switch;
-    tb_peripheral_subsystem_powergate_switch_ack[0] <= cgra_x_heep_top_i.x_heep_system_i.peripheral_subsystem_powergate_switch;
-    tb_memory_subsystem_banks_powergate_switch_ack[0] <= cgra_x_heep_top_i.x_heep_system_i.memory_subsystem_banks_powergate_switch;
+    tb_cpu_subsystem_powergate_switch_ack[0] <= keccak_x_heep_top_i.x_heep_system_i.cpu_subsystem_powergate_switch;
+    tb_peripheral_subsystem_powergate_switch_ack[0] <= keccak_x_heep_top_i.x_heep_system_i.peripheral_subsystem_powergate_switch;
+    tb_memory_subsystem_banks_powergate_switch_ack[0] <= keccak_x_heep_top_i.x_heep_system_i.memory_subsystem_banks_powergate_switch;
     tb_external_subsystem_powergate_switch_ack[0] <= external_subsystem_powergate_switch;
     for (int i = 0; i < SWITCH_ACK_LATENCY; i++) begin
       tb_memory_subsystem_banks_powergate_switch_ack[i+1] <= tb_memory_subsystem_banks_powergate_switch_ack[i];
@@ -124,14 +124,14 @@ module testharness #(
 
   always_comb begin
 `ifndef VERILATOR
-    force cgra_x_heep_top_i.x_heep_system_i.core_v_mini_mcu_i.cpu_subsystem_powergate_switch_ack_i = delayed_tb_cpu_subsystem_powergate_switch_ack;
-    force cgra_x_heep_top_i.x_heep_system_i.core_v_mini_mcu_i.peripheral_subsystem_powergate_switch_ack_i = delayed_tb_peripheral_subsystem_powergate_switch_ack;
-    force cgra_x_heep_top_i.x_heep_system_i.core_v_mini_mcu_i.memory_subsystem_banks_powergate_switch_ack_i = delayed_tb_memory_subsystem_banks_powergate_switch_ack;
+    force keccak_x_heep_top_i.x_heep_system_i.core_v_mini_mcu_i.cpu_subsystem_powergate_switch_ack_i = delayed_tb_cpu_subsystem_powergate_switch_ack;
+    force keccak_x_heep_top_i.x_heep_system_i.core_v_mini_mcu_i.peripheral_subsystem_powergate_switch_ack_i = delayed_tb_peripheral_subsystem_powergate_switch_ack;
+    force keccak_x_heep_top_i.x_heep_system_i.core_v_mini_mcu_i.memory_subsystem_banks_powergate_switch_ack_i = delayed_tb_memory_subsystem_banks_powergate_switch_ack;
     force external_subsystem_powergate_switch_ack = delayed_tb_external_subsystem_powergate_switch_ack;
 `else
-    cgra_x_heep_top_i.x_heep_system_i.cpu_subsystem_powergate_switch_ack = delayed_tb_cpu_subsystem_powergate_switch_ack;
-    cgra_x_heep_top_i.x_heep_system_i.peripheral_subsystem_powergate_switch_ack = delayed_tb_peripheral_subsystem_powergate_switch_ack;
-    cgra_x_heep_top_i.x_heep_system_i.memory_subsystem_banks_powergate_switch_ack = delayed_tb_memory_subsystem_banks_powergate_switch_ack;
+    keccak_x_heep_top_i.x_heep_system_i.cpu_subsystem_powergate_switch_ack = delayed_tb_cpu_subsystem_powergate_switch_ack;
+    keccak_x_heep_top_i.x_heep_system_i.peripheral_subsystem_powergate_switch_ack = delayed_tb_peripheral_subsystem_powergate_switch_ack;
+    keccak_x_heep_top_i.x_heep_system_i.memory_subsystem_banks_powergate_switch_ack = delayed_tb_memory_subsystem_banks_powergate_switch_ack;
     external_subsystem_powergate_switch_ack = delayed_tb_external_subsystem_powergate_switch_ack;
 `endif
   end

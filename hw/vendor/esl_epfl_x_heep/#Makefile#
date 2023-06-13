@@ -88,8 +88,8 @@ run-helloworld: mcu-gen verilator-sim app-helloworld
 	cd ../../..;
 
 run-helloworld-questasim: mcu-gen questasim-sim app-helloworld
-	cd ./build/openhwgroup.org_systems_core-v-mini-mcu_0/sim-modelsim; \
-	make run PLUSARGS="c firmware=../../../sw/applications/hello_world/hello_world.hex"; \
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
+	make run PLUSARGS="c firmware=../../../sw/x_heep_applications/hello_world/hello_world.hex"; \
 	cat uart0.log; \
 	cd ../../..;
 

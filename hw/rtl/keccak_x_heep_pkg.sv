@@ -12,7 +12,7 @@ package keccak_x_heep_pkg;
   import core_v_mini_mcu_pkg::*;
 
   // There's no Master o Slave port since Keccak connected as a slave peripheral
-  localparam EXT_XBAR_NMASTER = 0;
+  localparam EXT_XBAR_NMASTER = 1;
   // One slave port
   localparam EXT_XBAR_NSLAVE = 1;
 

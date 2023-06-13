@@ -4,7 +4,7 @@
 
 // Modified by Alessandra Dolmeta: alessandra.dolmeta@polito.it
 
-package keccak_x_heep_pkg;
+package ntt_x_heep_pkg;
 
   import addr_map_rule_pkg::*;
   import core_v_mini_mcu_pkg::*;

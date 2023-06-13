@@ -1,5 +1,3 @@
-// Modified by Alessandra Dolmeta: alessandra.dolmeta@polito.it
-
 {
     name: "keccak",
     clock_primary: "clk_i",
@@ -28,7 +26,7 @@
             cname: "dout",
             swaccess: "ro",
             hwaccess: "hwo",
-            hwext: "true",
+	    hwext: "true",
             fields: [
                 { bits: "31:0"
                 }
@@ -39,8 +37,7 @@
 	  desc: " Trigger the Keccak "
 	  swaccess: "wo",
 	  hwaccess: "hro",
-	  hwext: "true",
-    hwqe: "true",
+    	  //hwqe: "true",
 	  fields: [
 	      { bits: "0", name: "START",
 		desc: "Make the keccack starts"
@@ -51,7 +48,7 @@
 	  desc: " Contains status information about the Keccak"
 	  swaccess: "ro",
 	  hwaccess: "hwo",
-	  hwext: "true",
+	  //hwext : "true",
 	  fields: [
 	      { bits: "0", name: "STATUS",
 		desc: "If set output of keccack is valid"

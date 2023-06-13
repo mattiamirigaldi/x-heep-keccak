@@ -4,7 +4,7 @@
 
 // Modified by Alessandra Dolmeta: alessandra.dolmeta@polito.it
 
-module keccak_x_heep_top #(
+module ntt_x_heep_top #(
     parameter PULP_XPULP = 0,
     parameter FPU        = 0,
     parameter PULP_ZFINX = 0

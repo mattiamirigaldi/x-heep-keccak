@@ -42,6 +42,7 @@ module keccak_x_heep_top #(
 
     output logic [31:0] exit_value_o,
     inout  logic        exit_valid_o
+
 );
 
   import obi_pkg::*;
@@ -49,10 +50,10 @@ module keccak_x_heep_top #(
   import keccak_x_heep_pkg::*;
 
   // External xbar master/slave and peripheral ports
-  obi_req_t [keccak_x_heep_pkg::EXT_XBAR_NMASTER-1:0] ext_xbar_master_req;
-  obi_resp_t [keccak_x_heep_pkg::EXT_XBAR_NMASTER-1:0] ext_xbar_master_resp;
-  obi_req_t ext_xbar_slave_req;
-  obi_resp_t ext_xbar_slave_resp;
+  // obi_req_t [keccak_x_heep_pkg::EXT_XBAR_NMASTER-1:0] ext_xbar_master_req;
+  // obi_resp_t [keccak_x_heep_pkg::EXT_XBAR_NMASTER-1:0] ext_xbar_master_resp;
+  // obi_req_t ext_xbar_slave_req;
+  // obi_resp_t ext_xbar_slave_resp;
   reg_req_t ext_periph_slave_req;
   reg_rsp_t ext_periph_slave_resp;
 
@@ -69,10 +70,10 @@ module keccak_x_heep_top #(
       ext_intr_vector[i] = 1'b0;
     end
     // Re-assign the interrupt lines used here
-    ext_intr_vector[0] = keccak_int;
+    //ext_intr_vector[0] = keccak_int;
   end
 
-  keccak_top keccak_top_wrapper_i (
+  keccak_top keccak_top_i (
       .clk_i,
       .rst_ni,
       .reg_req_i(ext_periph_slave_req),
@@ -144,13 +145,10 @@ module keccak_x_heep_top #(
       .i2c_scl_io(gpio_io[31]),
       .i2c_sda_io(gpio_io[30]),
       .exit_value_o,
-      .intr_vector_ext_i(ext_intr_vector),
-      .ext_xbar_master_req_i(ext_xbar_master_req),
-      .ext_xbar_master_resp_o(ext_xbar_master_resp),
-      .ext_xbar_slave_req_o(ext_xbar_slave_req),
-      .ext_xbar_slave_resp_i(ext_xbar_slave_resp),
       .ext_peripheral_slave_req_o(ext_periph_slave_req),
       .ext_peripheral_slave_resp_i(ext_periph_slave_resp),
+      .ext_xbar_slave_resp_i('0),
+      .ext_xbar_master_req_i('0),
       .external_subsystem_powergate_switch_o,
       .external_subsystem_powergate_switch_ack_i,
       .external_subsystem_powergate_iso_o,

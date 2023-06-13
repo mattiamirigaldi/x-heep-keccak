@@ -6,12 +6,13 @@
 
 
 module keccak_cu (
-     input logic 		       clk_i,
-     input logic 		       rst_ni,
-     input logic 		       start_i,
-     input logic 		       ready_dp_i, 
-     output logic 		       start_dp_o,
-     output logic 		       status		       
+     input logic  clk_i,
+     input logic  rst_ni,
+     input logic  start_i,
+     input logic  ready_dp_i, 
+     output logic start_dp_o,
+     output logic status_d,
+     output logic status_de
    );
 
 
@@ -54,7 +55,8 @@ module keccak_cu (
 	end
 	do_permutation : begin
 	   start_dp_o <= 0;
-	   status <= 0;
+	   status_d <= 0;
+	   status_de <=0;
 	   if (counter == 24) begin
 	      //din_keccak_o <= 0;
 	      State_next <= permutation_finished;
@@ -64,12 +66,14 @@ module keccak_cu (
         end
 	permutation_finished : begin
 	   start_dp_o <= 0;
-	   status <= 1;
+	   status_d <= 1;
+	   status_de <=1;
 	   State_next <= wait_start;
         end 
 	default : begin
 	   start_dp_o <= 0;
-	   status <= 0;
+	   status_d <= 0;
+	   status_de <=0;
 	   State_next <= wait_start;
 	end
    endcase

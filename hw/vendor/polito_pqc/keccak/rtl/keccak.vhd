@@ -21,7 +21,8 @@ entity keccak is
         start   : in std_logic;
         din     : in  std_logic_vector(1599 downto 0);
         dout    : out std_logic_vector(1599 downto 0);
-        status  : out std_logic);
+        status_d   : out std_logic;
+        status_de : out std_logic);
 end keccak;
 
 architecture rtl of keccak is
@@ -43,7 +44,8 @@ architecture rtl of keccak is
       start_i    : in std_logic;
       ready_dp_i : in std_logic;
       start_dp_o : out std_logic;
-      status     : out std_logic);
+      status_d   : out std_logic;
+      status_de  : out std_logic);
     end component; 
       
  -- interface with RF in keccak_top
@@ -67,7 +69,8 @@ architecture rtl of keccak is
       start_i      => start,
       ready_dp_i   => permutation_computed, 
       start_dp_o   => start_dp,
-      status       => status);
+      status_d     => status_d,
+      status_de    => status_de);
     
 end rtl;
       

@@ -16,8 +16,8 @@ filesets:
     files:
     - hw/rtl/keccak_x_heep_pkg.sv
     - hw/rtl/keccak_x_heep_top.sv
-    - hw/rtl/ntt_intt_pwm_x_heep_pkg.sv
-    - hw/rtl/ntt_intt_pwm_x_heep_top.sv    
+    #- hw/rtl/ntt_intt_pwm_x_heep_pkg.sv
+    #- hw/rtl/ntt_intt_pwm_x_heep_top.sv    
     file_type: systemVerilogSource
 
   x_heep_system:
@@ -38,6 +38,7 @@ filesets:
   files_verilator_waiver:
     files:
     - tb/tb.vlt
+    - hw/misc/keccak_reg_top.vlt
     file_type: vlt
 
   systemverilog_only_simjtag:

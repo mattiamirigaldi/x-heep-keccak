@@ -1,0 +1,3 @@
+// Automatically generaged config. registers
+`verilator_config
+lint_off -rule WIDTH -file "*polito_pqc/keccak/rtl/gen_sv/keccak_reg_top.sv" -match "Operator ASSIGNW expects 9 bits on the Assign RHS, but Assign RHS's SEL generates 32 bits."

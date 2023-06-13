@@ -19,7 +19,6 @@ package keccak_reg_pkg;
 
   typedef struct packed {
     logic        q;
-    logic        qe;
   } keccak_reg2hw_ctrl_reg_t;
 
   typedef struct packed {
@@ -28,18 +27,19 @@ package keccak_reg_pkg;
 
   typedef struct packed {
     logic        d;
+    logic        de;
   } keccak_hw2reg_status_reg_t;
 
   // Register -> HW type
   typedef struct packed {
-    keccak_reg2hw_din_mreg_t [49:0] din; // [1601:2]
-    keccak_reg2hw_ctrl_reg_t ctrl; // [1:0]
+    keccak_reg2hw_din_mreg_t [49:0] din; // [1600:1]
+    keccak_reg2hw_ctrl_reg_t ctrl; // [0:0]
   } keccak_reg2hw_t;
 
   // HW -> register type
   typedef struct packed {
-    keccak_hw2reg_dout_mreg_t [49:0] dout; // [1600:1]
-    keccak_hw2reg_status_reg_t status; // [0:0]
+    keccak_hw2reg_dout_mreg_t [49:0] dout; // [1601:2]
+    keccak_hw2reg_status_reg_t status; // [1:0]
   } keccak_hw2reg_t;
 
   // Register offsets
@@ -197,8 +197,6 @@ package keccak_reg_pkg;
   parameter logic [31:0] KECCAK_DOUT_47_RESVAL = 32'h 0;
   parameter logic [31:0] KECCAK_DOUT_48_RESVAL = 32'h 0;
   parameter logic [31:0] KECCAK_DOUT_49_RESVAL = 32'h 0;
-  parameter logic [0:0] KECCAK_CTRL_RESVAL = 1'h 0;
-  parameter logic [0:0] KECCAK_STATUS_RESVAL = 1'h 0;
 
   // Register index
   typedef enum int {

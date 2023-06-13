@@ -14,6 +14,8 @@ filesets:
     - x-heep::packages
     - pulp-platform.org::common_cells:1.26.0
     files:
+    - polito_pqc/keccak/utilities/register_interface/include/register_interface/assign.svh
+    - polito_pqc/keccak/utilities/register_interface/include/register_interface/typedef.svh
     - polito_pqc/keccak/rtl/gen_sv/keccak_reg_pkg.sv
     - polito_pqc/keccak/rtl/gen_sv/keccak_reg_top.sv
     - polito_pqc/keccak/rtl/keccak_cu.sv
@@ -26,43 +28,41 @@ filesets:
     - pulp-platform.org::common_cells:1.26.0
     files:
     - polito_pqc/keccak/rtl/keccak_globals.vhd
-    - polito_pqc/keccak/rtl/keccak_round_constant_gen.vhd
+    - polito_pqc/keccak/rtl/keccak_round_constants_gen.vhd
     - polito_pqc/keccak/rtl/keccak_round.vhd
     - polito_pqc/keccak/rtl/keccak_datapath.vhd
     - polito_pqc/keccak/rtl/keccak.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/BRAM.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/BROM_TW.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/adder.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/address_generator.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/bN_2to1mux.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/barrett.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/butterfly.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/full_adder.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/half_adder.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/intmul.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/modadd.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/modmul.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/modsub.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/montgomery.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/ntt_intt.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/ntt_intt_top.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/param.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/reg_rst.vhd
-    - polito_pqc/ntt_intt_pwm/rtl/shiftreg.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/BRAM.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/BROM_TW.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/adder.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/address_generator.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/bN_2to1mux.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/barrett.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/butterfly.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/full_adder.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/half_adder.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/intmul.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/modadd.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/modmul.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/modsub.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/montgomery.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/ntt_intt.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/ntt_intt_top.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/param.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/reg_rst.vhd
+    #- polito_pqc/ntt_intt_pwm/rtl/shiftreg.vhd
     file_type: vhdlSource    
 
   files_behav_rtl:
     files:
-    - polito_pqc/keccak/eda/HDL/tech_lib/clkgate/rtl/keccak_clock_gate.sv
-    - polito_pqc/keccak/sim/keccak_sram_wrapper.sv
-    - polito_pqc/ntt_intt_pwm/eda/HDL/tech_lib/clkgate/rtl/ntt_intt_pwm_clock_gate.sv
-    - polito_pqc/ntt_intt_pwm/sim/ntt_intt_pwm_sram_wrapper.sv
-    file_type: systemVerilogSource
+    #- polito_pqc/keccak/eda/HDL/tech_lib/clkgate/rtl/keccak_clock_gate.sv
+    #- polito_pqc/ntt_intt_pwm/eda/HDL/tech_lib/clkgate/rtl/ntt_intt_pwm_clock_gate.sv
+    #file_type: systemVerilogSource
 
   files_verilator_waiver:
     files:
     - polito_pqc/keccak/lint/keccak.vlt
-    - polito_pqc/ntt_intt_pwm/lint/ntt_intt_pwm.vlt
+    #- polito_pqc/ntt_intt_pwm/lint/ntt_intt_pwm.vlt
     file_type: vlt
 
 targets:
