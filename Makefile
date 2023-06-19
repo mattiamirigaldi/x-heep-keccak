@@ -93,7 +93,19 @@ run-kyber768keygen: mcu-gen verilator-sim
 	./Vtestharness +firmware=../../../sw/build/main.hex; \
 	cat uart0.log; \
 	cd ../../..;
- 
+
+## @section Vivado
+
+## Builds (synthesis and implementation) the bitstream for the FPGA version using Vivado
+## @param FPGA_BOARD=nexys-a7-100t,pynq-z2
+## @param FUSESOC_FLAGS=--flag=<flagname>
+vivado-keccak-fpga:
+	fusesoc --cores-root . run --no-export --target=$(FPGA_BOARD) $(FUSESOC_FLAGS) --setup --build polito:systems:keccak_pqc 2>&1 | tee buildvivado.log
+
+vivado-keccak-fpga-nobuild:
+	$(FUSESOC) --cores-root . run --no-export --target=$(FPGA_BOARD) $(FUSESOC_FLAGS) --setup polito:systems:keccak_pqc 2>&1 | tee buildvivado.log
+
+
 
 
 help:

@@ -43,8 +43,8 @@ module keccak_x_heep_top #(
     output logic [31:0] exit_value_o,
     inout  logic        exit_valid_o
 
-);
-
+   );
+   
   import obi_pkg::*;
   import reg_pkg::*;
   import keccak_x_heep_pkg::*;

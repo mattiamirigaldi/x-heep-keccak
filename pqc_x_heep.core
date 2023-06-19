@@ -41,6 +41,14 @@ filesets:
     - hw/misc/keccak_reg_top.vlt
     file_type: vlt
 
+  fpga-pynq-z2:
+    depend:
+    - openhwgroup.org:systems:core-v-mini-mcu
+    files:
+    - hw/fpga/xilinx_keccak_wrapper.sv
+    file_type: systemVerilogSource
+    
+
   systemverilog_only_simjtag:
     depend:
     - pulp-platform.org::pulpissimo_simjtag
@@ -220,3 +228,17 @@ targets:
           - '-CFLAGS "-std=c++11 -Wall -g -fpermissive"'
           - '-LDFLAGS "-pthread -lutil -lelf"'
           - "-Wall"
+  pynq-z2:
+    <<: *default_target
+    default_tool: vivado
+    description: TUL Pynq-Z2 Board
+    filesets_append:
+    - x_heep_system
+    - fpga-pynq-z2
+    parameters:
+    - PULP_XPULP=0
+    - SYNTHESIS=true
+    tools:
+      vivado:
+        part: xc7z020clg400-1
+    toplevel: [xilinx_keccak_x_heep_top_wrapper]

@@ -209,8 +209,15 @@ targets:
   default: &default_target
     filesets:
     - files_rtl_generic
+    - rtl-fpga
+    - ip-fpga
+    - xdc-fpga-pynq-z2
     - target_sim ? (rtl-simulation)
     - target_sim ? (tool_verilator? (files_verilator_waiver))
+    #- target_pynqz-2 ? ([rtl-fpga, ip-fpga, xdc-fpga-pynq-z2])
+    #- target_pynqz-2 ? (rtl-fpga)
+    #- target_pynqz-2 ? (ip-fpga)
+    #- target_pynqz-2 ? (xdc-fpga-pynq-z2)
     toplevel: [core_v_mini_mcu]
 
   sim:
