@@ -7,41 +7,58 @@
 //
 
 module keccak_x_heep_top #(
-    parameter PULP_XPULP = 0,
+    parameter COREV_PULP = 0,
     parameter FPU        = 0,
-    parameter PULP_ZFINX = 0
+    parameter ZFINX      = 0	
 ) (
-    inout logic clk_i,
-    inout logic rst_ni,
+    inout logic 					     clk_i,
+    inout logic 					     rst_ni,
 
-    inout logic boot_select_i,
-    inout logic execute_from_flash_i,
+    inout logic 					     boot_select_i,
+    inout logic 					     execute_from_flash_i,
 
-    inout logic jtag_tck_i,
-    inout logic jtag_tms_i,
-    inout logic jtag_trst_ni,
-    inout logic jtag_tdi_i,
-    inout logic jtag_tdo_o,
+    inout logic 					     jtag_tck_i,
+    inout logic 					     jtag_tms_i,
+    inout logic 					     jtag_trst_ni,
+    inout logic 					     jtag_tdi_i,
+    inout logic 					     jtag_tdo_o,
 
-    inout logic [31:0] gpio_io,
+    inout 						     uart_rx_i,
+    inout 						     uart_tx_o,
 
-    inout uart_rx_i,
-    inout uart_tx_o,
+    inout logic [19:0] 					     gpio_io,
 
-    inout logic [3:0] spi_flash_sd_io,
-    inout logic [1:0] spi_flash_csb_io,
-    inout logic       spi_flash_sck_io,
+    inout logic [3:0] 					     spi_flash_sd_io,
+    inout logic [1:0] 					     spi_flash_csb_io,
+    inout logic 					     spi_flash_sck_io,
 
-    inout logic [3:0] spi_sd_io,
-    inout logic [1:0] spi_csb_io,
-    inout logic       spi_sck_io,
+    inout logic [3:0] 					     spi_sd_io,
+    inout logic [1:0] 					     spi_csb_io,
+    inout logic 					     spi_sck_io,
+    inout logic 					     spi2_sd_0_io,
+    inout logic 					     spi2_sd_1_io,
+    inout logic 					     spi2_sd_2_io,
+    inout logic 					     spi2_sd_3_io,
+    inout logic [1:0] 					     spi2_csb_o,
+    inout logic 					     spi2_sck_o,
+
+    inout logic 					     i2c_scl_io,
+    inout logic 					     i2c_sda_io,
+
+    inout logic 					     pdm2pcm_clk_io,
+    inout logic 					     pdm2pcm_pdm_io,
+
+    inout logic 					     i2s_sck_io,
+    inout logic 					     i2s_ws_io,
+    inout logic 					     i2s_sd_io,
+
 
     output logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0] external_subsystem_powergate_switch_o,
-    input  logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0] external_subsystem_powergate_switch_ack_i,
+    input logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0]  external_subsystem_powergate_switch_ack_i,
     output logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0] external_subsystem_powergate_iso_o,
 
-    output logic [31:0] exit_value_o,
-    inout  logic        exit_valid_o
+    output logic [31:0] 				     exit_value_o,
+    inout logic 					     exit_valid_o
 
    );
    
@@ -64,6 +81,9 @@ module keccak_x_heep_top #(
   logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0] external_subsystem_rst_n;
   logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0] external_ram_banks_set_retentive;
 
+  // eXtension Interface
+   if_xif #() ext_if ();
+  
   always_comb begin
     // All interrupt lines set to zero by default
     for (int i = 0; i < core_v_mini_mcu_pkg::NEXT_INT; i++) begin
@@ -81,23 +101,23 @@ module keccak_x_heep_top #(
   );
 
   x_heep_system #(
-      .PULP_XPULP(PULP_XPULP),
+      .COREV_PULP(COREV_PULP),
       .FPU(FPU),
-      .PULP_ZFINX(PULP_ZFINX),
+      .ZFINX(ZFINX),
       .EXT_XBAR_NMASTER(keccak_x_heep_pkg::EXT_XBAR_NMASTER)
   ) x_heep_system_i (
       .clk_i,
       .rst_ni,
+      .boot_select_i,
+      .execute_from_flash_i,
       .jtag_tck_i,
       .jtag_tms_i,
       .jtag_trst_ni,
       .jtag_tdi_i,
       .jtag_tdo_o,
-      .boot_select_i,
-      .execute_from_flash_i,
-      .exit_valid_o,
       .uart_rx_i,
       .uart_tx_o,
+      .exit_valid_o,
       .gpio_0_io(gpio_io[0]),
       .gpio_1_io(gpio_io[1]),
       .gpio_2_io(gpio_io[2]),
@@ -116,18 +136,6 @@ module keccak_x_heep_top #(
       .gpio_15_io(gpio_io[15]),
       .gpio_16_io(gpio_io[16]),
       .gpio_17_io(gpio_io[17]),
-      .gpio_18_io(gpio_io[18]),
-      .gpio_19_io(gpio_io[19]),
-      .gpio_20_io(gpio_io[20]),
-      .gpio_21_io(gpio_io[21]),
-      .gpio_22_io(gpio_io[22]),
-      .gpio_23_io(gpio_io[23]),
-      .gpio_24_io(gpio_io[24]),
-      .gpio_25_io(gpio_io[25]),
-      .gpio_26_io(gpio_io[26]),
-      .gpio_27_io(gpio_io[27]),
-      .gpio_28_io(gpio_io[28]),
-      .gpio_29_io(gpio_io[29]),
       .spi_flash_sck_io,
       .spi_flash_cs_0_io(spi_flash_csb_io[0]),
       .spi_flash_cs_1_io(spi_flash_csb_io[1]),
@@ -142,8 +150,20 @@ module keccak_x_heep_top #(
       .spi_sd_1_io(spi_sd_io[1]),
       .spi_sd_2_io(spi_sd_io[2]),
       .spi_sd_3_io(spi_sd_io[3]),
-      .i2c_scl_io(gpio_io[31]),
-      .i2c_sda_io(gpio_io[30]),
+      .pdm2pcm_pdm_io,
+      .pdm2pcm_clk_io,
+      .i2s_sck_io(i2s_sck_io),
+      .i2s_ws_io(i2s_ws_io),
+      .i2s_sd_io(i2s_sd_io),
+      .spi2_cs_0_io(spi2_csb_o[0]),
+      .spi2_cs_1_io(spi2_csb_o[1]),
+      .spi2_sck_io(spi_sck_io),
+      .spi2_sd_0_io(spi2_sd_0_io),
+      .spi2_sd_1_io(spi2_sd_1_io),
+      .spi2_sd_2_io(spi2_sd_2_io),
+      .spi2_sd_3_io(spi2_sd_3_io),
+      .i2c_scl_io(gpio_io[19]),
+      .i2c_sda_io(gpio_io[18]),
       .exit_value_o,
       .ext_peripheral_slave_req_o(ext_periph_slave_req),
       .ext_peripheral_slave_resp_i(ext_periph_slave_resp),
@@ -153,7 +173,14 @@ module keccak_x_heep_top #(
       .external_subsystem_powergate_switch_ack_i,
       .external_subsystem_powergate_iso_o,
       .external_subsystem_rst_no(external_subsystem_rst_n),
-      .external_ram_banks_set_retentive_o(external_ram_banks_set_retentive)
+      .external_ram_banks_set_retentive_o(external_ram_banks_set_retentive),
+      .intr_vector_ext_i('0),
+      .xif_compressed_if(ext_if),
+      .xif_issue_if(ext_if),
+      .xif_commit_if(ext_if),
+      .xif_mem_if(ext_if),
+      .xif_mem_result_if(ext_if),
+      .xif_result_if(ext_if)
   );
 
 endmodule  

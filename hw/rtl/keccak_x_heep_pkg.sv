@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
 
 // Designed by Alessandra Dolmeta, Mattia Mirigaldi
-// alessandra.dolmeta@polito.it, mattiamirigaldi.98017@gmail.com
+// alessandra.dolmeta@polito.it, mattia.mirigaldi@polito.it
 //
 
 package keccak_x_heep_pkg;
@@ -36,7 +36,7 @@ package keccak_x_heep_pkg;
   //slave encoder
   localparam EXT_SYSTEM_NPERIPHERALS = 1;
 
-  localparam logic [31:0] KECCAK_PERIPH_START_ADDRESS = core_v_mini_mcu_pkg::EXT_PERIPH_START_ADDRESS + 32'h0000000;
+  localparam logic [31:0] KECCAK_PERIPH_START_ADDRESS = core_v_mini_mcu_pkg::EXT_PERIPHERAL_START_ADDRESS + 32'h0000000;
   localparam logic [31:0] KECCAK_PERIPH_SIZE = 32'h0001000;
   localparam logic [31:0] KECCAK_PERIPH_END_ADDRESS = KECCAK_PERIPH_START_ADDRESS + KECCAK_PERIPH_SIZE;
   localparam logic [31:0] KECCAK_PERIPH_IDX = 32'd0;

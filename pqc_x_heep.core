@@ -236,9 +236,32 @@ targets:
     - x_heep_system
     - fpga-pynq-z2
     parameters:
-    - PULP_XPULP=0
+    - use_cv32e40p_corev_pulp? (COREV_PULP=1)
+    - "!use_cv32e40p_corev_pulp? (COREV_PULP=0)"
+    - use_cv32e40p_fpu? (FPU=1)
+    - "!use_cv32e40p_fpu? (FPU=0)"
+   # - PULP_XPULP=0
     - SYNTHESIS=true
     tools:
       vivado:
         part: xc7z020clg400-1
     toplevel: [xilinx_keccak_x_heep_top_wrapper]
+
+  pynq-z2-arm-emulation:
+    <<: *default_target
+    default_tool: vivado
+    description: TUL Pynq-Z2 Board
+    filesets_append:
+    - x_heep_system
+    - fpga-pynq-z2-arm
+  parameters:
+    - use_cv32e40p_corev_pulp? (COREV_PULP=1)
+    - "!use_cv32e40p_corev_pulp? (COREV_PULP=0)"
+    - use_cv32e40p_fpu? (FPU=1)
+    - "!use_cv32e40p_fpu? (FPU=0)"
+    - SYNTHESIS=true
+    tools:
+      vivado:
+        part: xc7z020clg400-1
+        jobs: 4
+    toplevel: [linux_femu_keccak]

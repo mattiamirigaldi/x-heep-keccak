@@ -12,7 +12,7 @@ filesets:
   files_rtl_sv:
     depend:
     - x-heep::packages
-    - pulp-platform.org::common_cells:1.26.0
+    - pulp-platform.org::common_cells
     files:
     - polito_pqc/keccak/utilities/register_interface/include/register_interface/assign.svh
     - polito_pqc/keccak/utilities/register_interface/include/register_interface/typedef.svh
@@ -25,7 +25,7 @@ filesets:
   files_rtl_vhdl:
     depend:
     - x-heep::packages
-    - pulp-platform.org::common_cells:1.26.0
+    - pulp-platform.org::common_cells
     files:
     - polito_pqc/keccak/rtl/keccak_globals.vhd
     - polito_pqc/keccak/rtl/keccak_round_constants_gen.vhd

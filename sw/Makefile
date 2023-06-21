@@ -26,34 +26,35 @@ TARGET                     ?= sim
 # GCC configuration
 CUSTOM_GCC_FLAGS           =
 
-LIB_CRT                    = $(wildcard x_heep_device/lib/crt/*.S)
-LIB_CRT_FLASH_EXEC         = $(wildcard x_heep_device/lib/crt_flash_exec/*.S)
-LIB_CRT_FLASH_LOAD         = $(wildcard x_heep_device/lib/crt_flash_load/*.S)
-LIB_BASE                   = $(wildcard x_heep_device/lib/base/*.c)
-LIB_BASE_FREESTD           = x_heep_device/lib/base/freestanding
-LIB_RUNTIME                = $(wildcard x_heep_device/lib/runtime/*.c)
-LIB_DRIVERS                = $(wildcard x_heep_device/lib/drivers/soc_ctrl/*.c)
-LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/uart/*.c)
-LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/rv_plic/*.c)
-LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/rv_timer/*.c)
-LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/gpio/*.c)
-LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/i2c/*.c)
-LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/dma/*.c)
-LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/power_manager/*.c)
-LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/fast_intr_ctrl/*.c)
-LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/spi_mem/*.c)
-LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/spi_host/*.c)
-LIB_DRIVERS                += $(wildcard x_heep_device/lib/drivers/pad_control/*.c)
-LIB_DRIVERS                += $(wildcard device/lib/drivers/keccak/*.c)
-# LIB_DRIVERS                += $(wildcard device/lib/drivers/heepocrates_ctrl/*.c)
-INC_FOLDERS                = $(sort $(dir $(wildcard x_heep_device/target/$(TARGET)/)))
-INC_FOLDERS                += $(sort $(dir $(wildcard x_heep_device/lib/drivers/*/)))
-INC_FOLDERS                += $(sort $(dir $(wildcard x_heep_device/lib/base/)))
-INC_FOLDERS                += $(sort $(dir $(wildcard x_heep_device/lib/runtime/)))
-INC_FOLDERS                += $(sort $(dir $(wildcard device/lib/crt/)))
-INC_FOLDERS                += $(sort $(dir $(wildcard device/lib/drivers/*/)))
-INC_FOLDERS                += $(sort $(dir $(wildcard device/lib/runtime/)))
 INC_FOLDERS_GCC             = $(addprefix -I ,$(INC_FOLDERS))
+LIB_CRT                    = $(wildcard device/lib/crt/crt0.S)
+LIB_CRT                    += $(wildcard device/lib/crt/vectors.S)
+LIB_CRT_FLASH_EXEC         = $(wildcard device/lib/crt_flash_exec/*.S)
+LIB_CRT_FLASH_LOAD         = $(wildcard device/lib/crt_flash_load/*.S)
+LIB_BASE                   = $(wildcard device/lib/base/*.c)
+LIB_BASE_FREESTD           = device/lib/base/freestanding
+LIB_RUNTIME                = $(wildcard device/lib/runtime/*.c)
+LIB_DRIVERS                = $(wildcard device/lib/drivers/soc_ctrl/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/uart/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/rv_plic/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/rv_timer/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/gpio/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/i2c/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/dma/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/power_manager/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/fast_intr_ctrl/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/spi_mem/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/spi_host/*.c)
+LIB_DRIVERS                += $(wildcard device/lib/drivers/pad_control/*.c)
+LIB_DRIVERS                += $(wildcard external/lib/drivers/keccak/*.c)
+# LIB_DRIVERS                += $(wildcard device/lib/drivers/heepocrates_ctrl/*.c)
+INC_FOLDERS                = $(sort $(dir $(wildcard device/target/$(TARGET)/)))
+INC_FOLDERS                += $(sort $(dir $(wildcard device/lib/drivers/*/)))
+INC_FOLDERS                += $(sort $(dir $(wildcard device/lib/base/)))
+INC_FOLDERS                += $(sort $(dir $(wildcard device/lib/runtime/)))
+INC_FOLDERS                += $(sort $(dir $(wildcard device/lib/crt/)))
+INC_FOLDERS                += $(sort $(dir $(wildcard external/lib/drivers/*/)))
+INC_FOLDERS                += $(sort $(dir $(wildcard external/lib/runtime/)))
 
 # Rules to generate hex (loadable by simulators) from elf
 %.hex: %.elf
@@ -76,11 +77,11 @@ INC_FOLDERS_GCC             = $(addprefix -I ,$(INC_FOLDERS))
 # This is an example for running a Hello World in the testbench
 # We link with our custom crt0.s and syscalls.c against newlib so that we can
 # use the c standard library
-x_heep_applications/hello_world/hello_world.elf: x_heep_applications/hello_world/hello_world.c
+x_heep_applications/hello_world/hello_world.elf: x_heep_applications/hello_world/main.c
 	$(RISCV_EXE_PREFIX)gcc -march=rv32imc -o $@ -w -Os -g -nostdlib \
 		$(CUSTOM_GCC_FLAGS) \
 		-DHOST_BUILD \
-		-T x_heep_linker/link.ld \
+		-T linker/link.ld \
 		-I $(RISCV)/riscv32-unknown-elf/include \
 		$(INC_FOLDERS_GCC) \
 		-static \
@@ -95,7 +96,7 @@ x_heep_applications/hello_world/hello_world.flash_exec.elf: x_heep_applications/
 	$(RISCV_EXE_PREFIX)gcc -march=rv32imc -o $@ -w -Os -g -nostdlib \
 		$(CUSTOM_GCC_FLAGS) \
 		-DHOST_BUILD \
-		-T x_heep_linker/link_flash_exec.ld \
+		-T linker/link_flash_exec.ld \
 		-I $(RISCV)/riscv32-unknown-elf/include \
 		$(INC_FOLDERS_GCC) \
 		-static \
@@ -111,7 +112,7 @@ applications/keccak_test/main.elf: applications/keccak_test/main.c
 	$(RISCV_EXE_PREFIX)gcc -march=rv32imc -o $@ -w -Os -g -nostdlib \
 		$(CUSTOM_GCC_FLAGS) \
 		-DHOST_BUILD \
-		-T x_heep_linker/link.ld \
+		-T linker/link.ld \
 		-I $(RISCV)/riscv32-unknown-elf/include \
 		$(INC_FOLDERS_GCC) \
 		-static \
