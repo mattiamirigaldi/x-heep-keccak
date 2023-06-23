@@ -8,7 +8,7 @@
 #include "keccak_driver.h"
 #include "keccak_auto.h"
 #include "stats.h"
-//#include "csr.h"
+#include "csr.h"
 
 #define KECCAK_BUSY 0 
   
@@ -73,7 +73,7 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50] ){
   uint32_t volatile *Dout_reg_start = (uint32_t*)KECCAK_DOUT_START_ADDR;
   unsigned int instr, cycles, ldstall, jrstall, imstall;
 
-  // CSR_WRITE(CSR_REG_MCYCLE, 0);
+  CSR_WRITE(CSR_REG_MCYCLE, 0);
   for (int i = 0; i<50; i++)
   {
      Din_reg_start[i] = Din[i];
@@ -92,8 +92,8 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50] ){
      Dout[i] = Dout_reg_start[i];	
   }
   // stop the HW counter used for monitoring
-  //CSR_READ(CSR_REG_MCYCLE, &cycles);
-  //printf("Number of clock cycles : %d\n", cycles);
+  CSR_READ(CSR_REG_MCYCLE, &cycles);
+  printf("Number of clock cycles : %d\n", cycles);
   //printf("Number of instructions : %d\nNumber of clock cycles: %d\nCPI: %f%f\n",instr_cnt, cycles_cnt, (float) instr_cnt/cycles_cnt);
   
 }

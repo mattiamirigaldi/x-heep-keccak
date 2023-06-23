@@ -48,6 +48,13 @@ filesets:
     - hw/fpga/xilinx_keccak_wrapper.sv
     file_type: systemVerilogSource
     
+  fpga-pynq-z2-arm:
+    depend:
+    - openhwgroup.org:systems:core-v-mini-mcu
+    files:
+    - hw/
+    file_type: systemVerilogSource
+    
 
   systemverilog_only_simjtag:
     depend:
@@ -97,7 +104,11 @@ filesets:
     file_type: systemVerilogSource
 
 parameters:
-  PULP_XPULP:
+  COREV_PULP:
+    datatype: int
+    paramtype: vlogparam
+    default: 0
+  FPU:
     datatype: int
     paramtype: vlogparam
     default: 0

@@ -3,7 +3,7 @@ module xilinx_keccak_x_heep_top_wrapper
   import obi_pkg::*;
   import reg_pkg::*;
 #( 
-   parameter COREV_PULP           = 0,
+    parameter COREV_PULP           = 0,
     parameter FPU                  = 0,
     parameter ZFINX                = 0,
     parameter X_EXT                = 0,  // eXtension interface in cv32e40x
@@ -67,7 +67,7 @@ module xilinx_keccak_x_heep_top_wrapper
   logic [                      31:0] exit_value;
   wire                               rst_n;
   logic [CLK_LED_COUNT_LENGTH - 1:0] clk_count;
-  logic [19:0] 		     gpio;
+  logic [                      19:0] gpio;
 		     
   // low active reset
   assign rst_n   = !rst_i;
@@ -94,11 +94,7 @@ module xilinx_keccak_x_heep_top_wrapper
       .clk_out1_0(clk_gen)
   );
 
-  // gpio assign
-   assign gpio[29:0] = gpio_io;
-   assign gpio[31] = i2c_scl_io;
-   assign gpio[30] = i2c_sda_io;
-     
+    
   keccak_x_heep_top  #(
       .COREV_PULP(COREV_PULP),
       .FPU(FPU),
@@ -115,7 +111,7 @@ module xilinx_keccak_x_heep_top_wrapper
       .jtag_tdo_o(jtag_tdo_o),
       .uart_rx_i(uart_rx_i),
       .uart_tx_o(uart_tx_o),
-      .gpio_io(gpio),
+      .gpio_io(gpio_io),
       .spi_flash_sd_io(spi_flash_sd_io),
       .spi_flash_csb_io(spi_flash_csb_o),
       .spi_flash_sck_io(spi_flash_sck_o),
@@ -128,9 +124,8 @@ module xilinx_keccak_x_heep_top_wrapper
       .spi2_sd_1_io(spi2_sd_1_io),
       .spi2_sd_2_io(spi2_sd_2_io),
       .spi2_sd_3_io(spi2_sd_3_io),
-      .spi2_cs_0_io(spi2_csb_o[0]),
-      .spi2_cs_1_io(spi2_csb_o[1]),
-      .spi2_sck_io(spi2_sck_o),
+      .spi2_csb_o(spi2_csb_o),
+      .spi2_sck_o(spi2_sck_o),
       .pdm2pcm_clk_io,
       .pdm2pcm_pdm_io,
       .i2s_sck_io(i2s_sck_io),
