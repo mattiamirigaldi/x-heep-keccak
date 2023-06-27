@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
 
 // Designed by Alessandra Dolmeta, Mattia Mirigaldi
-// alessandra.dolmeta@polito.it, mattiamirigaldi.98017@gmail.com
+// alessandra.dolmeta@polito.it, mattia.mirigaldi@polito.it
 //
 
 module keccak_x_heep_top #(

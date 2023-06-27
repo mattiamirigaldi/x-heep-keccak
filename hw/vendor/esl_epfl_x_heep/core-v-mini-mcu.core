@@ -406,9 +406,6 @@ targets:
     description: TUL Pynq-Z2 Board
     filesets_append:
     - x_heep_system
-    #- rtl-fpga
-    #- ip-fpga
-    #- fpga-arm-emulation
     parameters:
     - use_cv32e40p_corev_pulp? (COREV_PULP=1)
     - "!use_cv32e40p_corev_pulp? (COREV_PULP=0)"

@@ -2,13 +2,13 @@
 // Solderpad Hardware License, Version 2.1, see LICENSE.md for details.
 // SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
 
-module linux_femu
+module linux_femu_keccak
   import obi_pkg::*;
   import reg_pkg::*;
 #(
-  parameter PULP_XPULP           = 0,
+  parameter COREV_PULP           = 0,
   parameter FPU                  = 0,
-  parameter PULP_ZFINX           = 0,
+  parameter ZFINX                = 0,
   parameter EXT_XBAR_NMASTER     = 0,
   parameter CLK_LED_COUNT_LENGTH = 27
 ) (
@@ -331,6 +331,18 @@ module linux_femu
     .clk_out1_0(clk_gen)
   );
 
+  // External xbar master/slave and peripheral ports
+  reg_req_t ext_periph_slave_req;
+  reg_rsp_t ext_periph_slave_resp;
+
+  keccak_top keccak_top_i (
+      .clk_i,
+      .rst_ni,
+      .reg_req_i(ext_periph_slave_req),
+      .reg_rsp_o(ext_periph_slave_resp)
+  );
+
+
   // eXtension Interface
   if_xif #() ext_if ();
 
@@ -338,9 +350,9 @@ module linux_femu
   assign clk_i = clk_gen;
 
   core_v_mini_mcu #(
-    .PULP_XPULP(PULP_XPULP),
+    .COREV_PULP(COREV_PULP),
     .FPU(FPU),
-    .PULP_ZFINX(PULP_ZFINX),
+    .ZFINX(ZFINX),
     .EXT_XBAR_NMASTER(EXT_XBAR_NMASTER)
   ) core_v_mini_mcu_i (
 
@@ -590,8 +602,8 @@ module linux_femu
     .ext_xbar_master_resp_o(),
     .ext_xbar_slave_req_o(),
     .ext_xbar_slave_resp_i('0),
-    .ext_peripheral_slave_req_o(),
-    .ext_peripheral_slave_resp_i('0),
+    .ext_peripheral_slave_req_o(ext_periph_slave_req),
+    .ext_peripheral_slave_resp_i(ext_periph_slave_resp),
     .external_subsystem_powergate_switch_o(),
     .external_subsystem_powergate_switch_ack_i(),
     .external_subsystem_powergate_iso_o(),

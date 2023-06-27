@@ -36,6 +36,8 @@ LINKER   ?= on_chip
 # Target options are 'sim' (default) and 'pynq-z2'
 TARGET   ?= sim
 PAD_CFG  ?= pad_cfg.hjson
+PAD_CFG_LINUX  ?= hw/linux_femu/pad_cfg.hjson
+#MCU_CFG  ?= hw/vendor/esl_epfl_x_heep/mcu_cfg.hjson
 MCU_CFG  ?= mcu_cfg.hjson
 
 # Compiler options are 'gcc' (default) and 'clang'
@@ -71,7 +73,7 @@ mcu-gen:
 	python util/mcu_gen.py --cfg $(MCU_CFG) --pads_cfg $(PAD_CFG) --outdir hw/system/ --bus $(BUS) --memorybanks $(MEMORY_BANKS) --memorybanks_il $(MEMORY_BANKS_IL) --tpl-sv hw/system/pad_ring.sv.tpl && \
 	python util/mcu_gen.py --cfg $(MCU_CFG) --pads_cfg $(PAD_CFG) --outdir hw/core-v-mini-mcu/ --bus $(BUS) --memorybanks $(MEMORY_BANKS) --memorybanks_il $(MEMORY_BANKS_IL) --tpl-sv hw/core-v-mini-mcu/core_v_mini_mcu.sv.tpl  && \
 	python util/mcu_gen.py --cfg $(MCU_CFG) --pads_cfg $(PAD_CFG) --outdir hw/system/ --bus $(BUS) --memorybanks $(MEMORY_BANKS) --memorybanks_il $(MEMORY_BANKS_IL) --tpl-sv hw/system/x_heep_system.sv.tpl  && \
- 	python util/mcu_gen.py --cfg $(MCU_CFG) --pads_cfg $(PAD_CFG) --outdir sw/device/lib/runtime --cpu $(CPU) --bus $(BUS) --memorybanks $(MEMORY_BANKS) --memorybanks_il $(MEMORY_BANKS_IL) --header-c sw/device/lib/runtime/core_v_mini_mcu.h.tpl  && \
+	python util/mcu_gen.py --cfg $(MCU_CFG) --pads_cfg $(PAD_CFG) --outdir sw/device/lib/runtime --cpu $(CPU) --bus $(BUS) --memorybanks $(MEMORY_BANKS) --memorybanks_il $(MEMORY_BANKS_IL) --header-c sw/device/lib/runtime/core_v_mini_mcu.h.tpl  && \
 	python util/mcu_gen.py --cfg $(MCU_CFG) --pads_cfg $(PAD_CFG) --outdir sw/linker --bus $(BUS) --memorybanks $(MEMORY_BANKS) --memorybanks_il $(MEMORY_BANKS_IL) --linker_script sw/linker/link.ld.tpl  && \
 	python util/mcu_gen.py --cfg $(MCU_CFG) --pads_cfg $(PAD_CFG) --outdir . --bus $(BUS) --memorybanks $(MEMORY_BANKS) --memorybanks_il $(MEMORY_BANKS_IL) --pkg-sv ./core-v-mini-mcu.upf.tpl  && \
 	python util/mcu_gen.py --cfg $(MCU_CFG) --pads_cfg $(PAD_CFG) --outdir hw/ip/power_manager/rtl --bus $(BUS) --memorybanks $(MEMORY_BANKS) --memorybanks_il $(MEMORY_BANKS_IL) --external_domains $(EXTERNAL_DOMAINS) --pkg-sv hw/ip/power_manager/data/power_manager.sv.tpl  && \
@@ -92,14 +94,24 @@ verible:
 	cd hw/vendor/esl_epfl_x_heep && \
 	util/format-verible;
 
+## @section Linux-Emulation
+
+## Generates FEMU
+linux-femu-gen: mcu-gen
+	python util/mcu_gen.py --cfg $(MCU_CFG) --pads_cfg $(PAD_CFG_LINUX) --outdir hw/linux_femu/rtl/ --tpl-sv hw/linux_femu/rtl/linux_femu_keccak.sv.tpl
+	$(MAKE) verible
+
+
+# @section simulation
+
 app-helloworld:
 	$(MAKE) -C sw x_heep_applications/hello_world/hello_world.hex  TARGET=$(TARGET)
 
 app-keccak:
 	$(MAKE) -C sw applications/keccak_test/main.hex  TARGET=$(TARGET)
 
-app-kyber768keygen: clean-app
-	$(MAKE) -C sw PROJECT=kyber768keygen TARGET=$(TARGET) LINKER=$(LINKER) COMPILER=$(COMPILER) ARCH=$(ARCH) SOURCE=$(SOURCE)
+app-kyber512: 
+	$(MAKE) -C sw applications/kyber512/keygen/keygen.hex TARGET=$(TARGET)
 
 # Tools specific fusesoc call
 
@@ -139,7 +151,7 @@ run-keccak-questasim: mcu-gen questasim-sim app-keccak
 	make run PLUSARGS="c firmware=../../../sw/applications/keccak_test/main.hex"; \
 	cat uart0.log; \
 	cd ../../..;
- 
+
 run-kyber768keygen: mcu-gen verilator-sim
 	cd ./build/openhwgroup.org_systems_core-v-mini-mcu_0/sim-verilator; \
 	./Vtestharness +firmware=../../../sw/build/main.hex; \

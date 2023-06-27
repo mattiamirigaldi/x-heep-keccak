@@ -72,25 +72,29 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50] ){
   uint32_t current_status;
   uint32_t volatile *Dout_reg_start = (uint32_t*)KECCAK_DOUT_START_ADDR;
   unsigned int instr, cycles, ldstall, jrstall, imstall;
-
+  printf("!\n");
   CSR_WRITE(CSR_REG_MCYCLE, 0);
+printf("!\n");
   for (int i = 0; i<50; i++)
   {
      Din_reg_start[i] = Din[i];
   }
-
+printf("!\n");
   asm volatile ("": : : "memory");
   *ctrl_reg = 1 << KECCAK_CTRL_START_BIT;
   asm volatile ("": : : "memory");
   *ctrl_reg = 0 << KECCAK_CTRL_START_BIT;
+printf("!\n");
   // Busy waiting till the Keccak has finished permutation
   do {
+    printf(".\n");
 	  current_status = (*status_reg)&(1<<KECCAK_STATUS_STATUS_BIT);
   } while ( current_status == KECCAK_BUSY);
-  
+  printf("!\n");
   for (volatile int i = 0; i<50; i++){
      Dout[i] = Dout_reg_start[i];	
   }
+  printf("!\n");
   // stop the HW counter used for monitoring
   CSR_READ(CSR_REG_MCYCLE, &cycles);
   printf("Number of clock cycles : %d\n", cycles);
