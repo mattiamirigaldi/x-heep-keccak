@@ -12,7 +12,8 @@ module keccak_top
 	input logic rst_ni,
 	// APB interface
     input  reg_req_t reg_req_i,
-    output reg_rsp_t reg_rsp_o
+    output reg_rsp_t reg_rsp_o,
+    output keccak_intr_o
 );
    
 	keccak_reg2hw_t reg_file_to_ip;
@@ -46,7 +47,8 @@ module keccak_top
 		.din(din_keccak),
 		.dout(dout_keccak),
 		.status_d(ip_to_reg_file.status.d),
-		.status_de(ip_to_reg_file.status.de)	 
+		.status_de(ip_to_reg_file.status.de),
+		.keccak_intr(keccak_intr_o)
 	);
 
   assign ip_to_reg_file.dout = dout_keccak;

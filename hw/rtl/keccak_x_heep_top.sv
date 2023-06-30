@@ -76,6 +76,7 @@ module keccak_x_heep_top #(
 
   // External interrupts
   logic [core_v_mini_mcu_pkg::NEXT_INT-1:0] ext_intr_vector;
+  logic 				    keccak_intr; 
 
   // External subsystems
   logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0] external_subsystem_rst_n;
@@ -90,14 +91,15 @@ module keccak_x_heep_top #(
       ext_intr_vector[i] = 1'b0;
     end
     // Re-assign the interrupt lines used here
-    //ext_intr_vector[0] = keccak_int;
+    ext_intr_vector[0] = keccak_intr;
   end
 
   keccak_top keccak_top_i (
       .clk_i,
       .rst_ni,
       .reg_req_i(ext_periph_slave_req),
-      .reg_rsp_o(ext_periph_slave_resp)
+      .reg_rsp_o(ext_periph_slave_resp),
+      .keccak_intr_o(keccak_intr)
   );
 
   x_heep_system #(
@@ -174,7 +176,7 @@ module keccak_x_heep_top #(
       .external_subsystem_powergate_iso_o,
       .external_subsystem_rst_no(external_subsystem_rst_n),
       .external_ram_banks_set_retentive_o(external_ram_banks_set_retentive),
-      .intr_vector_ext_i('0),
+      .intr_vector_ext_i(ext_intr_vector),
       .xif_compressed_if(ext_if),
       .xif_issue_if(ext_if),
       .xif_commit_if(ext_if),

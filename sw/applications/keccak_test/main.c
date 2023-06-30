@@ -2,10 +2,8 @@
 #include <inttypes.h>
 #include <string.h>
 #include <stdlib.h>
-//#include "core_v_mini_mcu.h"
 #include "keccak_x_heep.h"
 #include "keccak_driver.h"
-
 
 int main(){
 
