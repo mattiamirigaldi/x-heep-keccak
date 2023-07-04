@@ -14,10 +14,27 @@
 #include "spi_host.h"
 #include "fast_intr_ctrl.h"
 #include "fast_intr_ctrl_regs.h"
+#include "x-heep.h"
 
 #ifdef TARGET_PYNQ_Z2
     #define USE_SPI_FLASH
 #endif
+
+/* Change this value to 0 to disable prints for FPGA and enable them for simulation. */
+#define DEFAULT_PRINTF_BEHAVIOR 1
+
+/* By default, printfs are activated for FPGA and disabled for simulation. */
+#ifdef TARGET_PYNQ_Z2 
+    #define ENABLE_PRINTF DEFAULT_PRINTF_BEHAVIOR
+#else 
+    #define ENABLE_PRINTF !DEFAULT_PRINTF_BEHAVIOR
+#endif
+
+#if ENABLE_PRINTF
+  #define PRINTF(fmt, ...)    printf(fmt, ## __VA_ARGS__)
+#else
+  #define PRINTF(...)
+#endif 
 
 // Simple example to check the SPI host peripheral is working. It checks the ram and flash have the same content
 #define REVERT_24b_ADDR(addr) ((((uint32_t)(addr) & 0xff0000) >> 16) | ((uint32_t)(addr) & 0xff00) | (((uint32_t)(addr) & 0xff) << 16))
@@ -30,7 +47,7 @@ uint32_t flash_data[8];
 uint32_t flash_original[8] = {1};
 
 #ifndef USE_SPI_FLASH
-void fic_irq_fast_spi(void)
+void fic_irq_spi(void)
 {
     // Disable SPI interrupts
     spi_enable_evt_intr(&spi_host, false);
@@ -38,7 +55,7 @@ void fic_irq_fast_spi(void)
     spi_intr_flag = 1;
 }
 #else
-void fic_irq_fast_spi_flash(void)
+void fic_irq_spi_flash(void)
 {
     // Disable SPI interrupts
     spi_enable_evt_intr(&spi_host, false);
@@ -49,6 +66,17 @@ void fic_irq_fast_spi_flash(void)
 
 int main(int argc, char *argv[])
 {
+
+    soc_ctrl_t soc_ctrl;
+    soc_ctrl.base_addr = mmio_region_from_addr((uintptr_t)SOC_CTRL_START_ADDRESS);
+
+#ifdef USE_SPI_FLASH
+   if ( get_spi_flash_mode(&soc_ctrl) == SOC_CTRL_SPI_FLASH_MODE_SPIMEMIO )
+    {
+        PRINTF("This application cannot work with the memory mapped SPI FLASH module - do not use the FLASH_EXEC linker script for this application\n");
+        return EXIT_SUCCESS;
+    }
+#endif
     // spi_host_t spi_host;
     #ifndef USE_SPI_FLASH
         spi_host.base_addr = mmio_region_from_addr((uintptr_t)SPI_HOST_START_ADDRESS);
@@ -56,8 +84,6 @@ int main(int argc, char *argv[])
         spi_host.base_addr = mmio_region_from_addr((uintptr_t)SPI_FLASH_START_ADDRESS);
     #endif
 
-    soc_ctrl_t soc_ctrl;
-    soc_ctrl.base_addr = mmio_region_from_addr((uintptr_t)SOC_CTRL_START_ADDRESS);
     uint32_t core_clk = soc_ctrl_get_frequency(&soc_ctrl);
 
     // Enable interrupt on processor side
@@ -183,7 +209,7 @@ int main(int argc, char *argv[])
     // Wait transaction is finished (polling register)
     // spi_wait_for_rx_watermark(&spi_host);
     // or wait for SPI interrupt
-    printf("Waiting for SPI...\n");
+    PRINTF("Waiting for SPI...\n\r");
     while(spi_intr_flag==0) {
         wait_for_interrupt();
     }
@@ -198,22 +224,25 @@ int main(int argc, char *argv[])
         spi_read_word(&spi_host, &flash_data[i]);
     }
 
-    printf("flash vs ram...\n");
+    PRINTF("flash vs ram...\n\r");
 
     uint32_t errors = 0;
     uint32_t* ram_ptr = flash_original;
     for (int i=0; i<8; i++) {
         if(flash_data[i] != *ram_ptr) {
-            printf("@%x : %x != %x\n", ram_ptr, flash_data[i], *ram_ptr);
+            PRINTF("@%x : %x != %x\n\r", ram_ptr, flash_data[i], *ram_ptr);
             errors++;
         }
         ram_ptr++;
     }
 
     if (errors == 0) {
-        printf("success!\n");
+        PRINTF("success!\n\r");
     } else {
-        printf("failure, %d errors!\n", errors);
+        PRINTF("failure, %d errors!\n\r", errors);
+        return EXIT_FAILURE;
     }
+
     return EXIT_SUCCESS;
+
 }

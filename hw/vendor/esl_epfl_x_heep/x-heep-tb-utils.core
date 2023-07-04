@@ -34,6 +34,8 @@ filesets:
     - tb/tb_util.svh: {is_include_file: true}
     - tb/testharness_pkg.sv
     - tb/testharness.sv
+    - tb/ext_xbar.sv
+    - tb/ext_bus.sv
     file_type: systemVerilogSource
 
   uartdpi:
@@ -66,7 +68,7 @@ filesets:
 targets:
   default: &default_target
     filesets:
-    - use_external_device_example? (files_examples)
+    - files_examples
     - tb-harness
     - tool_verilator? (uartdpi)
     - tool_modelsim? (systemverilog_only_uart)

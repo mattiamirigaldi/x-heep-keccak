@@ -11,9 +11,9 @@ module keccak_top
 	input logic clk_i,
 	input logic rst_ni,
 	// APB interface
-    input  reg_req_t reg_req_i,
-    output reg_rsp_t reg_rsp_o,
-    output keccak_intr_o
+	input 	    reg_req_t reg_req_i,
+	output 	    reg_rsp_t reg_rsp_o,
+	output 	    keccak_intr_o
 );
    
 	keccak_reg2hw_t reg_file_to_ip;

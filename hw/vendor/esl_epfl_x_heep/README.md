@@ -168,8 +168,7 @@ The `fusesoc` commands are inside the Makefile.
 
 # Adding external IPs
 
-This repository relies on [vendor](https://opentitan.org/book/util/doc/vendor.html) to add new IPs.
-In the ./util folder, the vendor.py scripts implements what is describeb above.
+This repository relies on [Vendor](https://opentitan.org/book/util/doc/vendor.html) to add new IPs. The `vendor.py` script in the [`./util`](./util/) folder implements what is describeb above, while [this](./ExternalDevices.md) file contains additional information on how to connect external devices to the system.
 
 # Compiling with Makefile
 
@@ -251,7 +250,7 @@ Moreover, FreeRTOS is being fetch from 'https://github.com/FreeRTOS/FreeRTOS-Ker
 This project supports simulation with Verilator, Synopsys VCS, and Siemens Questasim.
 It relies on `fusesoc` to handle multiple EDA tools and parameters.
 For example, if you want to set the `FPU` and `COREV_PULP` parameters of the `cv32e40p` CPU,
-you need to add next to your compilation command `FUSESOC_FLAGS="--flag=use_cv32e40p_corev_pulp --flag=use_cv32e40p_fpu"`
+you need to add next to your compilation command `FUSESOC_PARAM="--COREV_PULP=1 --FPU=1"`
 Below the different EDA examples commands.
 
 ### Compiling for Verilator
@@ -363,7 +362,7 @@ make run RUN_OPT=1 PLUSARGS="c firmware=../../../sw/build/main.hex"
 You can also compile with the UPF power domain description as:
 
 ```
-make questasim-sim-opt-upf FUSESOC_FLAGS="--flag=use_upf"
+make questasim-sim-opt-upf FUSESOC_PARAM="--USE_UPF"
 ```
 
 and then execute software as:

@@ -20,9 +20,8 @@
 
 // Interrupt controller variables
 plic_result_t plic_res;
-plic_irq_id_t intr_num;
 
-void handler_irq_ext(){
+void handler_irq_ext(uint32_t id){
   printf("D\n");
 }
 

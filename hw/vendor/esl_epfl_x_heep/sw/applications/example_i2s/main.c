@@ -38,7 +38,7 @@
 #define I2S_TEST_BATCHES      16
 #define I2S_CLK_DIV           8
 // #define AUDIO_DATA_NUM 2048                          // RECORDING LENGTH
-#define AUDIO_DATA_NUM 0x18000  // max 0x1c894                          // RECORDING LENGTH
+#define AUDIO_DATA_NUM 100//0x18000  // max 0x1c894                          // RECORDING LENGTH
 #define I2S_USE_INTERRUPT true
 #define USE_DMA
 #else
@@ -65,9 +65,25 @@
 
 
 
+/* Change this value to 0 to disable prints for FPGA and enable them for simulation. */
+#define DEFAULT_PRINTF_BEHAVIOR 1
+
+/* By default, printfs are activated for FPGA and disabled for simulation. */
+#ifdef TARGET_PYNQ_Z2 
+    #define ENABLE_PRINTF DEFAULT_PRINTF_BEHAVIOR
+#else 
+    #define ENABLE_PRINTF !DEFAULT_PRINTF_BEHAVIOR
+#endif
+
+#if ENABLE_PRINTF
+  #define PRINTF(fmt, ...)    printf(fmt, ## __VA_ARGS__)
+#else
+  #define PRINTF(...)
+#endif 
+
 // Interrupt controller variables
 plic_result_t plic_res;
-plic_irq_id_t intr_num;
+uint32_t intr_num;
 
 
 // I2s
@@ -80,24 +96,27 @@ int32_t audio_data_0[AUDIO_DATA_NUM] __attribute__ ((aligned (4)))  = { 0 };
 
 // DMA
 #ifdef USE_DMA
-dma_t dma;
 int8_t dma_intr_flag;
 #endif
 
 //
 // ISR
 //
-void handler_irq_i2s(void) {
+void handler_irq_i2s(uint32_t id) {
     i2s_interrupt_flag = 1;
 }
 
 #ifdef USE_DMA
-void fic_irq_dma(void)
+void dma_intr_handler_trans_done(void)
 {
     dma_intr_flag = 1;
 }
 #endif
 
+
+static dma_target_t tgt_src;
+static dma_target_t tgt_dst;
+static dma_trans_t trans;
 
 //
 // Setup
@@ -106,15 +125,31 @@ void setup()
 {
 
     #ifdef USE_DMA
-    dma.base_addr = mmio_region_from_addr((uintptr_t)DMA_START_ADDRESS);
+
+    dma_init(NULL);
 
      // -- DMA CONFIGURATION --
-    dma_set_read_ptr_inc(&dma, (uint32_t) 0); // Do not increment address when reading from the SPI (Pop from FIFO)
-    dma_set_write_ptr_inc(&dma, (uint32_t) 4);
-    dma_set_read_ptr(&dma, I2S_RX_DATA_ADDRESS); // I2s RX FIFO addr
-    dma_set_write_ptr(&dma, (uint32_t) audio_data_0); // audio data address
-    dma_set_slot(&dma, DMA_I2S_RX_SLOT, 0); // The DMA will wait for the I2s RX FIFO valid signal
-    dma_set_data_type(&dma, (uint32_t) 0);
+
+    tgt_src.ptr        = I2S_RX_DATA_ADDRESS;
+    tgt_src.inc_du     = 0;
+    tgt_src.trig       = DMA_TRIG_SLOT_I2S;
+    tgt_src.type       = DMA_DATA_TYPE_WORD;
+    tgt_src.size_du    = AUDIO_DATA_NUM;
+    
+    tgt_dst.ptr        = audio_data_0;
+    tgt_dst.inc_du     = 1;
+    tgt_dst.trig       = DMA_TRIG_MEMORY;
+    tgt_dst.type       = DMA_DATA_TYPE_WORD;
+    
+    trans.src        = &tgt_src;
+    trans.dst        = &tgt_dst;
+    trans.end        = DMA_TRANS_END_INTR;
+
+    dma_config_flags_t res;
+    res = dma_validate_transaction( &trans, DMA_ENABLE_REALIGN, DMA_PERFORM_CHECKS_INTEGRITY );
+    PRINTF("Valid:  %d\n\r", res);
+    res = dma_load_transaction(&trans);
+    PRINTF("Load:   %d\n\r", res);
     #endif
 
 
@@ -128,19 +163,10 @@ void setup()
     i2s_interrupt_flag = 0;
     i2s_res = i2s_init(I2S_CLK_DIV, I2S_32_BITS);
     if (i2s_res != kI2sOk) {
-        printf("I2s init failed with %d\n", i2s_res);
+        PRINTF("I2S init failed with %d\n\r", i2s_res);
     } 
     i2s_rx_enable_watermark(AUDIO_DATA_NUM, I2S_USE_INTERRUPT);
 
-
-    // Enable interrupt on processor side
-    // Enable global interrupt for machine-level interrupts
-    CSR_SET_BITS(CSR_REG_MSTATUS, 0x8);
-    // Set mie.MEIE bit to one to enable machine-level external interrupts
-    // bit 11 = external intr (used for i2s)
-    // bit 19 = dma fast intr
-    const uint32_t mask = 1 << 11 | 1 << 19; 
-    CSR_SET_BITS(CSR_REG_MIE, mask);
 }
 
 #define I2S_WAIT_TIME_US 100000 
@@ -153,11 +179,11 @@ int main(int argc, char *argv[]) {
 #ifdef TARGET_PYNQ_Z2
     for (uint32_t i = 0; i < 0x10000; i++) asm volatile("nop");
 #endif
-    printf("I2s DEMO\r\n");
+    PRINTF("I2S DEMO\r\n\r");
 
     setup();
 
-    //printf("Setup done!\r\n");
+    //PRINTF("Setup done!\r\n\r");
 
 #ifdef TARGET_PYNQ_Z2
     
@@ -170,15 +196,15 @@ int main(int argc, char *argv[]) {
     #pragma message ( "this application never ends" )
 
     int batch = 0;
-    while(1) {
-        printf("starting\r\n"); // <- csv header for python 
+    for (int batch = 0; batch < I2S_TEST_BATCHES; batch++){
+        PRINTF("starting\r\n\r"); // <- csv header for python 
         #ifdef USE_DMA
-            dma_set_cnt_start(&dma, (uint32_t) (AUDIO_DATA_NUM*4)); // start 
+            dma_launch( &trans );
         #endif // USE_DMA
         
         i2s_res = i2s_rx_start(I2S_LEFT_CH);
         if (i2s_res != kI2sOk) {
-            printf("I2s rx start failed with %d\n", i2s_res);
+            PRINTF("I2S rx start failed with %d\n\r", i2s_res);
         } 
 
         #ifdef USE_DMA
@@ -190,23 +216,23 @@ int main(int argc, char *argv[]) {
         #else
         // READING DATA MANUALLY OVER BUS
         for (int i = 0; i < AUDIO_DATA_NUM; i+=1) {
-            if (i != i2s_rx_read_waterlevel()) printf("Waterlevel wrong\r\n");
+            if (i != i2s_rx_read_waterlevel()) PRINTF("Waterlevel wrong\r\n\r");
             while (! i2s_rx_data_available()) { }
             audio_data_0[i] = i2s_rx_read_data();
         }
         #endif
 
         if (i2s_rx_overflow()) {
-            printf("I2s rx FIFO overflowed\n");
+            PRINTF("I2S rx FIFO overflowed\n\r");
         }
 
         i2s_res = i2s_rx_stop();
         if (i2s_res != kI2sOk) {
             if (i2s_res == kI2sOverflow) {
-                printf("I2s rx overflow occured and cleared\n");
+                PRINTF("I2S rx overflow occured and cleared\n\r");
             }
             else {
-                printf("I2s rx stop failed with %d\n", i2s_res);
+                PRINTF("I2S rx stop failed with %d\n\r", i2s_res);
             }
         }
 
@@ -214,20 +240,16 @@ int main(int argc, char *argv[]) {
         // this takes wayyy longer than reading the samples, so no continuous mode is possible with UART dump 
         int32_t* data = audio_data_0;
         for (int i = 0; i < AUDIO_DATA_NUM; i+=1) {
-            printf("%d\r\n",(int16_t) (data[i] >> 16));
+            PRINTF("%d\r\n\r",(int16_t) (data[i] >> 16));
         }
         batch += 1;
-        printf("Batch done!\r\n", batch);
+        PRINTF("Batch done!\r\n\r", batch);
 
         if (i2s_interrupt_flag) {
-            printf("irq 1\n");
+            PRINTF("irq 1\n\r");
             i2s_interrupt_flag = 0;
         }
-
-
-        #ifdef USE_DMA
-        dma_set_cnt_start(&dma, (uint32_t) (AUDIO_DATA_NUM*4)); // restart 
-        #endif
+        success = 1;
     }
 #else
     //
@@ -238,11 +260,11 @@ int main(int argc, char *argv[]) {
 
     for (int batch = 0; batch < I2S_TEST_BATCHES; batch++) {
         #ifdef USE_DMA
-        dma_set_cnt_start(&dma, (uint32_t) (AUDIO_DATA_NUM*4)); // start 
+        dma_launch( &trans );
         #endif // USE_DMA
         i2s_res = i2s_rx_start(I2S_BOTH_CH);
         if (i2s_res != kI2sOk) {
-            printf("I2s rx start failed with %d\n", i2s_res);
+            PRINTF("I2S rx start failed with %d\n\r", i2s_res);
         } 
         #ifdef USE_DMA
 
@@ -254,62 +276,66 @@ int main(int argc, char *argv[]) {
         #else
         // READING DATA MANUALLY OVER BUS
         for (int i = 0; i < AUDIO_DATA_NUM; i+=1) {
-            if (i != i2s_rx_read_waterlevel()) printf("Waterlevel wrong\r\n");
+            if (i != i2s_rx_read_waterlevel()) PRINTF("Waterlevel wrong\r\n\r");
             while (!i2s_rx_data_available()) { }
             audio_data_0[i] = i2s_rx_read_data();
         }
         #endif
         if (i2s_rx_overflow()) {
-            printf("I2s rx FIFO overflowed\n");
+            PRINTF("I2S rx FIFO overflowed\n\r");
         }
 
         i2s_res = i2s_rx_stop();
         if (i2s_res != kI2sOk) {
             if (i2s_res == kI2sOverflow) {
-                printf("I2s rx overflow occured and cleared\n");
+                PRINTF("I2S rx overflow occured and cleared\n\r");
             }
             else {
-                printf("I2s rx stop failed with %d\n", i2s_res);
+                PRINTF("I2S rx stop failed with %d\n\r", i2s_res);
             }
         }
 
         if (i2s_interrupt_flag) {
-            printf("irq 1\r\n");
+            PRINTF("irq 1\r\n\r");
             i2s_interrupt_flag = 0;
         }
 
 
-        printf("B%x\r\n", batch);
+        PRINTF("B%x\r\n\r", batch);
         
         int32_t* data = audio_data_0;
         for (int i = 0; i < AUDIO_DATA_NUM; i+=2) {
-            printf("0x%x 0x%x\r\n", data[i], data[i+1]);
+            PRINTF("0x%x 0x%x\r\n\r", data[i], data[i+1]);
             if (data[i] != 0) {
                 mic_connected = true; // the microphone testbench is connected
                 if (data[i] != 0x8765431) {
-                    printf("ERROR left sample %d (B%d) = 0x%08x != 0x8765431\r\n", i, batch, data[i]);
+                    PRINTF("ERROR left sample %d (B%d) = 0x%08x != 0x8765431\r\n\r", i, batch, data[i]);
                     success = false;
                 }
             }
             if (data[i+1] != 0) {
                 mic_connected = true; // the microphone testbench is connected
                 if (data[i+1] != 0xfedcba9) {
-                    printf("ERROR left sample data[%d] = 0x%08x != 0xfedcba9\r\n", i+1, batch, data[i+1]);
+                    PRINTF("ERROR left sample data[%d] = 0x%08x != 0xfedcba9\r\n\r", i+1, batch, data[i+1]);
                     success = false;
                 }
             }
         }
-        #ifdef USE_DMA
-        dma_set_cnt_start(&dma, (uint32_t) (AUDIO_DATA_NUM*4)); // restart 
-        #endif
     }
 
     if (! mic_connected) {
-        printf("WARNING: Please build with `make verilator-sim FUSESOC_FLAGS=\"--flag=use_external_device_example\"\r\n");
+        PRINTF("WARNING: Microphone not connected!\r\n\r");
     }
 #endif
-    i2s_terminate();
 
-    return success ? EXIT_SUCCESS : EXIT_FAILURE;
+    i2s_terminate();
+    
+    if( success ){
+        PRINTF("Success. \n\r");
+        return EXIT_SUCCESS;
+    }else{
+        PRINTF("Failure. \n\r");
+        return EXIT_FAILURE;
+    }
 }
 
