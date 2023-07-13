@@ -12,7 +12,7 @@ filesets:
     depend:
     - x-heep::packages
     - openhwgroup.org:systems:core-v-mini-mcu
-    - polito::pqc-x-heep
+    - vlsi:polito:keccak
     files:
     - hw/rtl/keccak_x_heep_pkg.sv
     - hw/rtl/keccak_x_heep_top.sv
