@@ -148,7 +148,7 @@ run-helloworld-questasim: mcu-gen questasim-sim app-helloworld
 
 run-keccak-questasim: mcu-gen questasim-sim app-keccak
 	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
-	make run PLUSARGS="c firmware=../../../sw/applications/keccak_test/main.hex"; \
+	make run-gui PLUSARGS="c firmware=../../../sw/applications/keccak_test/main.hex"; \
 	cat uart0.log; \
 	cd ../../..;
 

@@ -7,25 +7,25 @@
 
 `include "common_cells/assertions.svh"
 
-module keccak_reg_top #(
-    parameter type reg_req_t = logic,
-    parameter type reg_rsp_t = logic,
-    parameter int AW = 9
+module keccak_data_reg_top #(
+  parameter type reg_req_t = logic,
+  parameter type reg_rsp_t = logic,
+  parameter int AW = 9
 ) (
-  input clk_i,
-  input rst_ni,
+  input logic clk_i,
+  input logic rst_ni,
   input  reg_req_t reg_req_i,
   output reg_rsp_t reg_rsp_o,
   // To HW
-  output keccak_reg_pkg::keccak_reg2hw_t reg2hw, // Write
-  input  keccak_reg_pkg::keccak_hw2reg_t hw2reg, // Read
+  output keccak_data_reg_pkg::keccak_data_reg2hw_t reg2hw, // Write
+  input  keccak_data_reg_pkg::keccak_data_hw2reg_t hw2reg, // Read
 
 
   // Config
   input devmode_i // If 1, explicit error return for unmapped register access
 );
 
-  import keccak_reg_pkg::* ;
+  import keccak_data_reg_pkg::* ;
 
   localparam int DW = 32;
   localparam int DBW = DW/8;                    // Byte Width
@@ -268,9 +268,6 @@ module keccak_reg_top #(
   logic dout_48_re;
   logic [31:0] dout_49_qs;
   logic dout_49_re;
-  logic ctrl_wd;
-  logic ctrl_we;
-  logic status_qs;
 
   // Register instances
 
@@ -2377,165 +2374,111 @@ module keccak_reg_top #(
   );
 
 
-  // R[ctrl]: V(False)
-
-  prim_subreg #(
-    .DW      (1),
-    .SWACCESS("WO"),
-    .RESVAL  (1'h0)
-  ) u_ctrl (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    // from register interface
-    .we     (ctrl_we),
-    .wd     (ctrl_wd),
-
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.ctrl.q ),
-
-    .qs     ()
-  );
 
 
-  // R[status]: V(False)
-
-  prim_subreg #(
-    .DW      (1),
-    .SWACCESS("RO"),
-    .RESVAL  (1'h0)
-  ) u_status (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
-
-    .we     (1'b0),
-    .wd     ('0  ),
-
-    // from internal hardware
-    .de     (hw2reg.status.de),
-    .d      (hw2reg.status.d ),
-
-    // to internal hardware
-    .qe     (),
-    .q      (),
-
-    // to register interface (read)
-    .qs     (status_qs)
-  );
-
-
-
-
-  logic [101:0] addr_hit;
+  logic [99:0] addr_hit;
   always_comb begin
     addr_hit = '0;
-    addr_hit[  0] = (reg_addr == KECCAK_DIN_0_OFFSET);
-    addr_hit[  1] = (reg_addr == KECCAK_DIN_1_OFFSET);
-    addr_hit[  2] = (reg_addr == KECCAK_DIN_2_OFFSET);
-    addr_hit[  3] = (reg_addr == KECCAK_DIN_3_OFFSET);
-    addr_hit[  4] = (reg_addr == KECCAK_DIN_4_OFFSET);
-    addr_hit[  5] = (reg_addr == KECCAK_DIN_5_OFFSET);
-    addr_hit[  6] = (reg_addr == KECCAK_DIN_6_OFFSET);
-    addr_hit[  7] = (reg_addr == KECCAK_DIN_7_OFFSET);
-    addr_hit[  8] = (reg_addr == KECCAK_DIN_8_OFFSET);
-    addr_hit[  9] = (reg_addr == KECCAK_DIN_9_OFFSET);
-    addr_hit[ 10] = (reg_addr == KECCAK_DIN_10_OFFSET);
-    addr_hit[ 11] = (reg_addr == KECCAK_DIN_11_OFFSET);
-    addr_hit[ 12] = (reg_addr == KECCAK_DIN_12_OFFSET);
-    addr_hit[ 13] = (reg_addr == KECCAK_DIN_13_OFFSET);
-    addr_hit[ 14] = (reg_addr == KECCAK_DIN_14_OFFSET);
-    addr_hit[ 15] = (reg_addr == KECCAK_DIN_15_OFFSET);
-    addr_hit[ 16] = (reg_addr == KECCAK_DIN_16_OFFSET);
-    addr_hit[ 17] = (reg_addr == KECCAK_DIN_17_OFFSET);
-    addr_hit[ 18] = (reg_addr == KECCAK_DIN_18_OFFSET);
-    addr_hit[ 19] = (reg_addr == KECCAK_DIN_19_OFFSET);
-    addr_hit[ 20] = (reg_addr == KECCAK_DIN_20_OFFSET);
-    addr_hit[ 21] = (reg_addr == KECCAK_DIN_21_OFFSET);
-    addr_hit[ 22] = (reg_addr == KECCAK_DIN_22_OFFSET);
-    addr_hit[ 23] = (reg_addr == KECCAK_DIN_23_OFFSET);
-    addr_hit[ 24] = (reg_addr == KECCAK_DIN_24_OFFSET);
-    addr_hit[ 25] = (reg_addr == KECCAK_DIN_25_OFFSET);
-    addr_hit[ 26] = (reg_addr == KECCAK_DIN_26_OFFSET);
-    addr_hit[ 27] = (reg_addr == KECCAK_DIN_27_OFFSET);
-    addr_hit[ 28] = (reg_addr == KECCAK_DIN_28_OFFSET);
-    addr_hit[ 29] = (reg_addr == KECCAK_DIN_29_OFFSET);
-    addr_hit[ 30] = (reg_addr == KECCAK_DIN_30_OFFSET);
-    addr_hit[ 31] = (reg_addr == KECCAK_DIN_31_OFFSET);
-    addr_hit[ 32] = (reg_addr == KECCAK_DIN_32_OFFSET);
-    addr_hit[ 33] = (reg_addr == KECCAK_DIN_33_OFFSET);
-    addr_hit[ 34] = (reg_addr == KECCAK_DIN_34_OFFSET);
-    addr_hit[ 35] = (reg_addr == KECCAK_DIN_35_OFFSET);
-    addr_hit[ 36] = (reg_addr == KECCAK_DIN_36_OFFSET);
-    addr_hit[ 37] = (reg_addr == KECCAK_DIN_37_OFFSET);
-    addr_hit[ 38] = (reg_addr == KECCAK_DIN_38_OFFSET);
-    addr_hit[ 39] = (reg_addr == KECCAK_DIN_39_OFFSET);
-    addr_hit[ 40] = (reg_addr == KECCAK_DIN_40_OFFSET);
-    addr_hit[ 41] = (reg_addr == KECCAK_DIN_41_OFFSET);
-    addr_hit[ 42] = (reg_addr == KECCAK_DIN_42_OFFSET);
-    addr_hit[ 43] = (reg_addr == KECCAK_DIN_43_OFFSET);
-    addr_hit[ 44] = (reg_addr == KECCAK_DIN_44_OFFSET);
-    addr_hit[ 45] = (reg_addr == KECCAK_DIN_45_OFFSET);
-    addr_hit[ 46] = (reg_addr == KECCAK_DIN_46_OFFSET);
-    addr_hit[ 47] = (reg_addr == KECCAK_DIN_47_OFFSET);
-    addr_hit[ 48] = (reg_addr == KECCAK_DIN_48_OFFSET);
-    addr_hit[ 49] = (reg_addr == KECCAK_DIN_49_OFFSET);
-    addr_hit[ 50] = (reg_addr == KECCAK_DOUT_0_OFFSET);
-    addr_hit[ 51] = (reg_addr == KECCAK_DOUT_1_OFFSET);
-    addr_hit[ 52] = (reg_addr == KECCAK_DOUT_2_OFFSET);
-    addr_hit[ 53] = (reg_addr == KECCAK_DOUT_3_OFFSET);
-    addr_hit[ 54] = (reg_addr == KECCAK_DOUT_4_OFFSET);
-    addr_hit[ 55] = (reg_addr == KECCAK_DOUT_5_OFFSET);
-    addr_hit[ 56] = (reg_addr == KECCAK_DOUT_6_OFFSET);
-    addr_hit[ 57] = (reg_addr == KECCAK_DOUT_7_OFFSET);
-    addr_hit[ 58] = (reg_addr == KECCAK_DOUT_8_OFFSET);
-    addr_hit[ 59] = (reg_addr == KECCAK_DOUT_9_OFFSET);
-    addr_hit[ 60] = (reg_addr == KECCAK_DOUT_10_OFFSET);
-    addr_hit[ 61] = (reg_addr == KECCAK_DOUT_11_OFFSET);
-    addr_hit[ 62] = (reg_addr == KECCAK_DOUT_12_OFFSET);
-    addr_hit[ 63] = (reg_addr == KECCAK_DOUT_13_OFFSET);
-    addr_hit[ 64] = (reg_addr == KECCAK_DOUT_14_OFFSET);
-    addr_hit[ 65] = (reg_addr == KECCAK_DOUT_15_OFFSET);
-    addr_hit[ 66] = (reg_addr == KECCAK_DOUT_16_OFFSET);
-    addr_hit[ 67] = (reg_addr == KECCAK_DOUT_17_OFFSET);
-    addr_hit[ 68] = (reg_addr == KECCAK_DOUT_18_OFFSET);
-    addr_hit[ 69] = (reg_addr == KECCAK_DOUT_19_OFFSET);
-    addr_hit[ 70] = (reg_addr == KECCAK_DOUT_20_OFFSET);
-    addr_hit[ 71] = (reg_addr == KECCAK_DOUT_21_OFFSET);
-    addr_hit[ 72] = (reg_addr == KECCAK_DOUT_22_OFFSET);
-    addr_hit[ 73] = (reg_addr == KECCAK_DOUT_23_OFFSET);
-    addr_hit[ 74] = (reg_addr == KECCAK_DOUT_24_OFFSET);
-    addr_hit[ 75] = (reg_addr == KECCAK_DOUT_25_OFFSET);
-    addr_hit[ 76] = (reg_addr == KECCAK_DOUT_26_OFFSET);
-    addr_hit[ 77] = (reg_addr == KECCAK_DOUT_27_OFFSET);
-    addr_hit[ 78] = (reg_addr == KECCAK_DOUT_28_OFFSET);
-    addr_hit[ 79] = (reg_addr == KECCAK_DOUT_29_OFFSET);
-    addr_hit[ 80] = (reg_addr == KECCAK_DOUT_30_OFFSET);
-    addr_hit[ 81] = (reg_addr == KECCAK_DOUT_31_OFFSET);
-    addr_hit[ 82] = (reg_addr == KECCAK_DOUT_32_OFFSET);
-    addr_hit[ 83] = (reg_addr == KECCAK_DOUT_33_OFFSET);
-    addr_hit[ 84] = (reg_addr == KECCAK_DOUT_34_OFFSET);
-    addr_hit[ 85] = (reg_addr == KECCAK_DOUT_35_OFFSET);
-    addr_hit[ 86] = (reg_addr == KECCAK_DOUT_36_OFFSET);
-    addr_hit[ 87] = (reg_addr == KECCAK_DOUT_37_OFFSET);
-    addr_hit[ 88] = (reg_addr == KECCAK_DOUT_38_OFFSET);
-    addr_hit[ 89] = (reg_addr == KECCAK_DOUT_39_OFFSET);
-    addr_hit[ 90] = (reg_addr == KECCAK_DOUT_40_OFFSET);
-    addr_hit[ 91] = (reg_addr == KECCAK_DOUT_41_OFFSET);
-    addr_hit[ 92] = (reg_addr == KECCAK_DOUT_42_OFFSET);
-    addr_hit[ 93] = (reg_addr == KECCAK_DOUT_43_OFFSET);
-    addr_hit[ 94] = (reg_addr == KECCAK_DOUT_44_OFFSET);
-    addr_hit[ 95] = (reg_addr == KECCAK_DOUT_45_OFFSET);
-    addr_hit[ 96] = (reg_addr == KECCAK_DOUT_46_OFFSET);
-    addr_hit[ 97] = (reg_addr == KECCAK_DOUT_47_OFFSET);
-    addr_hit[ 98] = (reg_addr == KECCAK_DOUT_48_OFFSET);
-    addr_hit[ 99] = (reg_addr == KECCAK_DOUT_49_OFFSET);
-    addr_hit[100] = (reg_addr == KECCAK_CTRL_OFFSET);
-    addr_hit[101] = (reg_addr == KECCAK_STATUS_OFFSET);
+    addr_hit[ 0] = (reg_addr == KECCAK_DATA_DIN_0_OFFSET);
+    addr_hit[ 1] = (reg_addr == KECCAK_DATA_DIN_1_OFFSET);
+    addr_hit[ 2] = (reg_addr == KECCAK_DATA_DIN_2_OFFSET);
+    addr_hit[ 3] = (reg_addr == KECCAK_DATA_DIN_3_OFFSET);
+    addr_hit[ 4] = (reg_addr == KECCAK_DATA_DIN_4_OFFSET);
+    addr_hit[ 5] = (reg_addr == KECCAK_DATA_DIN_5_OFFSET);
+    addr_hit[ 6] = (reg_addr == KECCAK_DATA_DIN_6_OFFSET);
+    addr_hit[ 7] = (reg_addr == KECCAK_DATA_DIN_7_OFFSET);
+    addr_hit[ 8] = (reg_addr == KECCAK_DATA_DIN_8_OFFSET);
+    addr_hit[ 9] = (reg_addr == KECCAK_DATA_DIN_9_OFFSET);
+    addr_hit[10] = (reg_addr == KECCAK_DATA_DIN_10_OFFSET);
+    addr_hit[11] = (reg_addr == KECCAK_DATA_DIN_11_OFFSET);
+    addr_hit[12] = (reg_addr == KECCAK_DATA_DIN_12_OFFSET);
+    addr_hit[13] = (reg_addr == KECCAK_DATA_DIN_13_OFFSET);
+    addr_hit[14] = (reg_addr == KECCAK_DATA_DIN_14_OFFSET);
+    addr_hit[15] = (reg_addr == KECCAK_DATA_DIN_15_OFFSET);
+    addr_hit[16] = (reg_addr == KECCAK_DATA_DIN_16_OFFSET);
+    addr_hit[17] = (reg_addr == KECCAK_DATA_DIN_17_OFFSET);
+    addr_hit[18] = (reg_addr == KECCAK_DATA_DIN_18_OFFSET);
+    addr_hit[19] = (reg_addr == KECCAK_DATA_DIN_19_OFFSET);
+    addr_hit[20] = (reg_addr == KECCAK_DATA_DIN_20_OFFSET);
+    addr_hit[21] = (reg_addr == KECCAK_DATA_DIN_21_OFFSET);
+    addr_hit[22] = (reg_addr == KECCAK_DATA_DIN_22_OFFSET);
+    addr_hit[23] = (reg_addr == KECCAK_DATA_DIN_23_OFFSET);
+    addr_hit[24] = (reg_addr == KECCAK_DATA_DIN_24_OFFSET);
+    addr_hit[25] = (reg_addr == KECCAK_DATA_DIN_25_OFFSET);
+    addr_hit[26] = (reg_addr == KECCAK_DATA_DIN_26_OFFSET);
+    addr_hit[27] = (reg_addr == KECCAK_DATA_DIN_27_OFFSET);
+    addr_hit[28] = (reg_addr == KECCAK_DATA_DIN_28_OFFSET);
+    addr_hit[29] = (reg_addr == KECCAK_DATA_DIN_29_OFFSET);
+    addr_hit[30] = (reg_addr == KECCAK_DATA_DIN_30_OFFSET);
+    addr_hit[31] = (reg_addr == KECCAK_DATA_DIN_31_OFFSET);
+    addr_hit[32] = (reg_addr == KECCAK_DATA_DIN_32_OFFSET);
+    addr_hit[33] = (reg_addr == KECCAK_DATA_DIN_33_OFFSET);
+    addr_hit[34] = (reg_addr == KECCAK_DATA_DIN_34_OFFSET);
+    addr_hit[35] = (reg_addr == KECCAK_DATA_DIN_35_OFFSET);
+    addr_hit[36] = (reg_addr == KECCAK_DATA_DIN_36_OFFSET);
+    addr_hit[37] = (reg_addr == KECCAK_DATA_DIN_37_OFFSET);
+    addr_hit[38] = (reg_addr == KECCAK_DATA_DIN_38_OFFSET);
+    addr_hit[39] = (reg_addr == KECCAK_DATA_DIN_39_OFFSET);
+    addr_hit[40] = (reg_addr == KECCAK_DATA_DIN_40_OFFSET);
+    addr_hit[41] = (reg_addr == KECCAK_DATA_DIN_41_OFFSET);
+    addr_hit[42] = (reg_addr == KECCAK_DATA_DIN_42_OFFSET);
+    addr_hit[43] = (reg_addr == KECCAK_DATA_DIN_43_OFFSET);
+    addr_hit[44] = (reg_addr == KECCAK_DATA_DIN_44_OFFSET);
+    addr_hit[45] = (reg_addr == KECCAK_DATA_DIN_45_OFFSET);
+    addr_hit[46] = (reg_addr == KECCAK_DATA_DIN_46_OFFSET);
+    addr_hit[47] = (reg_addr == KECCAK_DATA_DIN_47_OFFSET);
+    addr_hit[48] = (reg_addr == KECCAK_DATA_DIN_48_OFFSET);
+    addr_hit[49] = (reg_addr == KECCAK_DATA_DIN_49_OFFSET);
+    addr_hit[50] = (reg_addr == KECCAK_DATA_DOUT_0_OFFSET);
+    addr_hit[51] = (reg_addr == KECCAK_DATA_DOUT_1_OFFSET);
+    addr_hit[52] = (reg_addr == KECCAK_DATA_DOUT_2_OFFSET);
+    addr_hit[53] = (reg_addr == KECCAK_DATA_DOUT_3_OFFSET);
+    addr_hit[54] = (reg_addr == KECCAK_DATA_DOUT_4_OFFSET);
+    addr_hit[55] = (reg_addr == KECCAK_DATA_DOUT_5_OFFSET);
+    addr_hit[56] = (reg_addr == KECCAK_DATA_DOUT_6_OFFSET);
+    addr_hit[57] = (reg_addr == KECCAK_DATA_DOUT_7_OFFSET);
+    addr_hit[58] = (reg_addr == KECCAK_DATA_DOUT_8_OFFSET);
+    addr_hit[59] = (reg_addr == KECCAK_DATA_DOUT_9_OFFSET);
+    addr_hit[60] = (reg_addr == KECCAK_DATA_DOUT_10_OFFSET);
+    addr_hit[61] = (reg_addr == KECCAK_DATA_DOUT_11_OFFSET);
+    addr_hit[62] = (reg_addr == KECCAK_DATA_DOUT_12_OFFSET);
+    addr_hit[63] = (reg_addr == KECCAK_DATA_DOUT_13_OFFSET);
+    addr_hit[64] = (reg_addr == KECCAK_DATA_DOUT_14_OFFSET);
+    addr_hit[65] = (reg_addr == KECCAK_DATA_DOUT_15_OFFSET);
+    addr_hit[66] = (reg_addr == KECCAK_DATA_DOUT_16_OFFSET);
+    addr_hit[67] = (reg_addr == KECCAK_DATA_DOUT_17_OFFSET);
+    addr_hit[68] = (reg_addr == KECCAK_DATA_DOUT_18_OFFSET);
+    addr_hit[69] = (reg_addr == KECCAK_DATA_DOUT_19_OFFSET);
+    addr_hit[70] = (reg_addr == KECCAK_DATA_DOUT_20_OFFSET);
+    addr_hit[71] = (reg_addr == KECCAK_DATA_DOUT_21_OFFSET);
+    addr_hit[72] = (reg_addr == KECCAK_DATA_DOUT_22_OFFSET);
+    addr_hit[73] = (reg_addr == KECCAK_DATA_DOUT_23_OFFSET);
+    addr_hit[74] = (reg_addr == KECCAK_DATA_DOUT_24_OFFSET);
+    addr_hit[75] = (reg_addr == KECCAK_DATA_DOUT_25_OFFSET);
+    addr_hit[76] = (reg_addr == KECCAK_DATA_DOUT_26_OFFSET);
+    addr_hit[77] = (reg_addr == KECCAK_DATA_DOUT_27_OFFSET);
+    addr_hit[78] = (reg_addr == KECCAK_DATA_DOUT_28_OFFSET);
+    addr_hit[79] = (reg_addr == KECCAK_DATA_DOUT_29_OFFSET);
+    addr_hit[80] = (reg_addr == KECCAK_DATA_DOUT_30_OFFSET);
+    addr_hit[81] = (reg_addr == KECCAK_DATA_DOUT_31_OFFSET);
+    addr_hit[82] = (reg_addr == KECCAK_DATA_DOUT_32_OFFSET);
+    addr_hit[83] = (reg_addr == KECCAK_DATA_DOUT_33_OFFSET);
+    addr_hit[84] = (reg_addr == KECCAK_DATA_DOUT_34_OFFSET);
+    addr_hit[85] = (reg_addr == KECCAK_DATA_DOUT_35_OFFSET);
+    addr_hit[86] = (reg_addr == KECCAK_DATA_DOUT_36_OFFSET);
+    addr_hit[87] = (reg_addr == KECCAK_DATA_DOUT_37_OFFSET);
+    addr_hit[88] = (reg_addr == KECCAK_DATA_DOUT_38_OFFSET);
+    addr_hit[89] = (reg_addr == KECCAK_DATA_DOUT_39_OFFSET);
+    addr_hit[90] = (reg_addr == KECCAK_DATA_DOUT_40_OFFSET);
+    addr_hit[91] = (reg_addr == KECCAK_DATA_DOUT_41_OFFSET);
+    addr_hit[92] = (reg_addr == KECCAK_DATA_DOUT_42_OFFSET);
+    addr_hit[93] = (reg_addr == KECCAK_DATA_DOUT_43_OFFSET);
+    addr_hit[94] = (reg_addr == KECCAK_DATA_DOUT_44_OFFSET);
+    addr_hit[95] = (reg_addr == KECCAK_DATA_DOUT_45_OFFSET);
+    addr_hit[96] = (reg_addr == KECCAK_DATA_DOUT_46_OFFSET);
+    addr_hit[97] = (reg_addr == KECCAK_DATA_DOUT_47_OFFSET);
+    addr_hit[98] = (reg_addr == KECCAK_DATA_DOUT_48_OFFSET);
+    addr_hit[99] = (reg_addr == KECCAK_DATA_DOUT_49_OFFSET);
   end
 
   assign addrmiss = (reg_re || reg_we) ? ~|addr_hit : 1'b0 ;
@@ -2543,108 +2486,106 @@ module keccak_reg_top #(
   // Check sub-word write is permitted
   always_comb begin
     wr_err = (reg_we &
-              ((addr_hit[  0] & (|(KECCAK_PERMIT[  0] & ~reg_be))) |
-               (addr_hit[  1] & (|(KECCAK_PERMIT[  1] & ~reg_be))) |
-               (addr_hit[  2] & (|(KECCAK_PERMIT[  2] & ~reg_be))) |
-               (addr_hit[  3] & (|(KECCAK_PERMIT[  3] & ~reg_be))) |
-               (addr_hit[  4] & (|(KECCAK_PERMIT[  4] & ~reg_be))) |
-               (addr_hit[  5] & (|(KECCAK_PERMIT[  5] & ~reg_be))) |
-               (addr_hit[  6] & (|(KECCAK_PERMIT[  6] & ~reg_be))) |
-               (addr_hit[  7] & (|(KECCAK_PERMIT[  7] & ~reg_be))) |
-               (addr_hit[  8] & (|(KECCAK_PERMIT[  8] & ~reg_be))) |
-               (addr_hit[  9] & (|(KECCAK_PERMIT[  9] & ~reg_be))) |
-               (addr_hit[ 10] & (|(KECCAK_PERMIT[ 10] & ~reg_be))) |
-               (addr_hit[ 11] & (|(KECCAK_PERMIT[ 11] & ~reg_be))) |
-               (addr_hit[ 12] & (|(KECCAK_PERMIT[ 12] & ~reg_be))) |
-               (addr_hit[ 13] & (|(KECCAK_PERMIT[ 13] & ~reg_be))) |
-               (addr_hit[ 14] & (|(KECCAK_PERMIT[ 14] & ~reg_be))) |
-               (addr_hit[ 15] & (|(KECCAK_PERMIT[ 15] & ~reg_be))) |
-               (addr_hit[ 16] & (|(KECCAK_PERMIT[ 16] & ~reg_be))) |
-               (addr_hit[ 17] & (|(KECCAK_PERMIT[ 17] & ~reg_be))) |
-               (addr_hit[ 18] & (|(KECCAK_PERMIT[ 18] & ~reg_be))) |
-               (addr_hit[ 19] & (|(KECCAK_PERMIT[ 19] & ~reg_be))) |
-               (addr_hit[ 20] & (|(KECCAK_PERMIT[ 20] & ~reg_be))) |
-               (addr_hit[ 21] & (|(KECCAK_PERMIT[ 21] & ~reg_be))) |
-               (addr_hit[ 22] & (|(KECCAK_PERMIT[ 22] & ~reg_be))) |
-               (addr_hit[ 23] & (|(KECCAK_PERMIT[ 23] & ~reg_be))) |
-               (addr_hit[ 24] & (|(KECCAK_PERMIT[ 24] & ~reg_be))) |
-               (addr_hit[ 25] & (|(KECCAK_PERMIT[ 25] & ~reg_be))) |
-               (addr_hit[ 26] & (|(KECCAK_PERMIT[ 26] & ~reg_be))) |
-               (addr_hit[ 27] & (|(KECCAK_PERMIT[ 27] & ~reg_be))) |
-               (addr_hit[ 28] & (|(KECCAK_PERMIT[ 28] & ~reg_be))) |
-               (addr_hit[ 29] & (|(KECCAK_PERMIT[ 29] & ~reg_be))) |
-               (addr_hit[ 30] & (|(KECCAK_PERMIT[ 30] & ~reg_be))) |
-               (addr_hit[ 31] & (|(KECCAK_PERMIT[ 31] & ~reg_be))) |
-               (addr_hit[ 32] & (|(KECCAK_PERMIT[ 32] & ~reg_be))) |
-               (addr_hit[ 33] & (|(KECCAK_PERMIT[ 33] & ~reg_be))) |
-               (addr_hit[ 34] & (|(KECCAK_PERMIT[ 34] & ~reg_be))) |
-               (addr_hit[ 35] & (|(KECCAK_PERMIT[ 35] & ~reg_be))) |
-               (addr_hit[ 36] & (|(KECCAK_PERMIT[ 36] & ~reg_be))) |
-               (addr_hit[ 37] & (|(KECCAK_PERMIT[ 37] & ~reg_be))) |
-               (addr_hit[ 38] & (|(KECCAK_PERMIT[ 38] & ~reg_be))) |
-               (addr_hit[ 39] & (|(KECCAK_PERMIT[ 39] & ~reg_be))) |
-               (addr_hit[ 40] & (|(KECCAK_PERMIT[ 40] & ~reg_be))) |
-               (addr_hit[ 41] & (|(KECCAK_PERMIT[ 41] & ~reg_be))) |
-               (addr_hit[ 42] & (|(KECCAK_PERMIT[ 42] & ~reg_be))) |
-               (addr_hit[ 43] & (|(KECCAK_PERMIT[ 43] & ~reg_be))) |
-               (addr_hit[ 44] & (|(KECCAK_PERMIT[ 44] & ~reg_be))) |
-               (addr_hit[ 45] & (|(KECCAK_PERMIT[ 45] & ~reg_be))) |
-               (addr_hit[ 46] & (|(KECCAK_PERMIT[ 46] & ~reg_be))) |
-               (addr_hit[ 47] & (|(KECCAK_PERMIT[ 47] & ~reg_be))) |
-               (addr_hit[ 48] & (|(KECCAK_PERMIT[ 48] & ~reg_be))) |
-               (addr_hit[ 49] & (|(KECCAK_PERMIT[ 49] & ~reg_be))) |
-               (addr_hit[ 50] & (|(KECCAK_PERMIT[ 50] & ~reg_be))) |
-               (addr_hit[ 51] & (|(KECCAK_PERMIT[ 51] & ~reg_be))) |
-               (addr_hit[ 52] & (|(KECCAK_PERMIT[ 52] & ~reg_be))) |
-               (addr_hit[ 53] & (|(KECCAK_PERMIT[ 53] & ~reg_be))) |
-               (addr_hit[ 54] & (|(KECCAK_PERMIT[ 54] & ~reg_be))) |
-               (addr_hit[ 55] & (|(KECCAK_PERMIT[ 55] & ~reg_be))) |
-               (addr_hit[ 56] & (|(KECCAK_PERMIT[ 56] & ~reg_be))) |
-               (addr_hit[ 57] & (|(KECCAK_PERMIT[ 57] & ~reg_be))) |
-               (addr_hit[ 58] & (|(KECCAK_PERMIT[ 58] & ~reg_be))) |
-               (addr_hit[ 59] & (|(KECCAK_PERMIT[ 59] & ~reg_be))) |
-               (addr_hit[ 60] & (|(KECCAK_PERMIT[ 60] & ~reg_be))) |
-               (addr_hit[ 61] & (|(KECCAK_PERMIT[ 61] & ~reg_be))) |
-               (addr_hit[ 62] & (|(KECCAK_PERMIT[ 62] & ~reg_be))) |
-               (addr_hit[ 63] & (|(KECCAK_PERMIT[ 63] & ~reg_be))) |
-               (addr_hit[ 64] & (|(KECCAK_PERMIT[ 64] & ~reg_be))) |
-               (addr_hit[ 65] & (|(KECCAK_PERMIT[ 65] & ~reg_be))) |
-               (addr_hit[ 66] & (|(KECCAK_PERMIT[ 66] & ~reg_be))) |
-               (addr_hit[ 67] & (|(KECCAK_PERMIT[ 67] & ~reg_be))) |
-               (addr_hit[ 68] & (|(KECCAK_PERMIT[ 68] & ~reg_be))) |
-               (addr_hit[ 69] & (|(KECCAK_PERMIT[ 69] & ~reg_be))) |
-               (addr_hit[ 70] & (|(KECCAK_PERMIT[ 70] & ~reg_be))) |
-               (addr_hit[ 71] & (|(KECCAK_PERMIT[ 71] & ~reg_be))) |
-               (addr_hit[ 72] & (|(KECCAK_PERMIT[ 72] & ~reg_be))) |
-               (addr_hit[ 73] & (|(KECCAK_PERMIT[ 73] & ~reg_be))) |
-               (addr_hit[ 74] & (|(KECCAK_PERMIT[ 74] & ~reg_be))) |
-               (addr_hit[ 75] & (|(KECCAK_PERMIT[ 75] & ~reg_be))) |
-               (addr_hit[ 76] & (|(KECCAK_PERMIT[ 76] & ~reg_be))) |
-               (addr_hit[ 77] & (|(KECCAK_PERMIT[ 77] & ~reg_be))) |
-               (addr_hit[ 78] & (|(KECCAK_PERMIT[ 78] & ~reg_be))) |
-               (addr_hit[ 79] & (|(KECCAK_PERMIT[ 79] & ~reg_be))) |
-               (addr_hit[ 80] & (|(KECCAK_PERMIT[ 80] & ~reg_be))) |
-               (addr_hit[ 81] & (|(KECCAK_PERMIT[ 81] & ~reg_be))) |
-               (addr_hit[ 82] & (|(KECCAK_PERMIT[ 82] & ~reg_be))) |
-               (addr_hit[ 83] & (|(KECCAK_PERMIT[ 83] & ~reg_be))) |
-               (addr_hit[ 84] & (|(KECCAK_PERMIT[ 84] & ~reg_be))) |
-               (addr_hit[ 85] & (|(KECCAK_PERMIT[ 85] & ~reg_be))) |
-               (addr_hit[ 86] & (|(KECCAK_PERMIT[ 86] & ~reg_be))) |
-               (addr_hit[ 87] & (|(KECCAK_PERMIT[ 87] & ~reg_be))) |
-               (addr_hit[ 88] & (|(KECCAK_PERMIT[ 88] & ~reg_be))) |
-               (addr_hit[ 89] & (|(KECCAK_PERMIT[ 89] & ~reg_be))) |
-               (addr_hit[ 90] & (|(KECCAK_PERMIT[ 90] & ~reg_be))) |
-               (addr_hit[ 91] & (|(KECCAK_PERMIT[ 91] & ~reg_be))) |
-               (addr_hit[ 92] & (|(KECCAK_PERMIT[ 92] & ~reg_be))) |
-               (addr_hit[ 93] & (|(KECCAK_PERMIT[ 93] & ~reg_be))) |
-               (addr_hit[ 94] & (|(KECCAK_PERMIT[ 94] & ~reg_be))) |
-               (addr_hit[ 95] & (|(KECCAK_PERMIT[ 95] & ~reg_be))) |
-               (addr_hit[ 96] & (|(KECCAK_PERMIT[ 96] & ~reg_be))) |
-               (addr_hit[ 97] & (|(KECCAK_PERMIT[ 97] & ~reg_be))) |
-               (addr_hit[ 98] & (|(KECCAK_PERMIT[ 98] & ~reg_be))) |
-               (addr_hit[ 99] & (|(KECCAK_PERMIT[ 99] & ~reg_be))) |
-               (addr_hit[100] & (|(KECCAK_PERMIT[100] & ~reg_be))) |
-               (addr_hit[101] & (|(KECCAK_PERMIT[101] & ~reg_be)))));
+              ((addr_hit[ 0] & (|(KECCAK_DATA_PERMIT[ 0] & ~reg_be))) |
+               (addr_hit[ 1] & (|(KECCAK_DATA_PERMIT[ 1] & ~reg_be))) |
+               (addr_hit[ 2] & (|(KECCAK_DATA_PERMIT[ 2] & ~reg_be))) |
+               (addr_hit[ 3] & (|(KECCAK_DATA_PERMIT[ 3] & ~reg_be))) |
+               (addr_hit[ 4] & (|(KECCAK_DATA_PERMIT[ 4] & ~reg_be))) |
+               (addr_hit[ 5] & (|(KECCAK_DATA_PERMIT[ 5] & ~reg_be))) |
+               (addr_hit[ 6] & (|(KECCAK_DATA_PERMIT[ 6] & ~reg_be))) |
+               (addr_hit[ 7] & (|(KECCAK_DATA_PERMIT[ 7] & ~reg_be))) |
+               (addr_hit[ 8] & (|(KECCAK_DATA_PERMIT[ 8] & ~reg_be))) |
+               (addr_hit[ 9] & (|(KECCAK_DATA_PERMIT[ 9] & ~reg_be))) |
+               (addr_hit[10] & (|(KECCAK_DATA_PERMIT[10] & ~reg_be))) |
+               (addr_hit[11] & (|(KECCAK_DATA_PERMIT[11] & ~reg_be))) |
+               (addr_hit[12] & (|(KECCAK_DATA_PERMIT[12] & ~reg_be))) |
+               (addr_hit[13] & (|(KECCAK_DATA_PERMIT[13] & ~reg_be))) |
+               (addr_hit[14] & (|(KECCAK_DATA_PERMIT[14] & ~reg_be))) |
+               (addr_hit[15] & (|(KECCAK_DATA_PERMIT[15] & ~reg_be))) |
+               (addr_hit[16] & (|(KECCAK_DATA_PERMIT[16] & ~reg_be))) |
+               (addr_hit[17] & (|(KECCAK_DATA_PERMIT[17] & ~reg_be))) |
+               (addr_hit[18] & (|(KECCAK_DATA_PERMIT[18] & ~reg_be))) |
+               (addr_hit[19] & (|(KECCAK_DATA_PERMIT[19] & ~reg_be))) |
+               (addr_hit[20] & (|(KECCAK_DATA_PERMIT[20] & ~reg_be))) |
+               (addr_hit[21] & (|(KECCAK_DATA_PERMIT[21] & ~reg_be))) |
+               (addr_hit[22] & (|(KECCAK_DATA_PERMIT[22] & ~reg_be))) |
+               (addr_hit[23] & (|(KECCAK_DATA_PERMIT[23] & ~reg_be))) |
+               (addr_hit[24] & (|(KECCAK_DATA_PERMIT[24] & ~reg_be))) |
+               (addr_hit[25] & (|(KECCAK_DATA_PERMIT[25] & ~reg_be))) |
+               (addr_hit[26] & (|(KECCAK_DATA_PERMIT[26] & ~reg_be))) |
+               (addr_hit[27] & (|(KECCAK_DATA_PERMIT[27] & ~reg_be))) |
+               (addr_hit[28] & (|(KECCAK_DATA_PERMIT[28] & ~reg_be))) |
+               (addr_hit[29] & (|(KECCAK_DATA_PERMIT[29] & ~reg_be))) |
+               (addr_hit[30] & (|(KECCAK_DATA_PERMIT[30] & ~reg_be))) |
+               (addr_hit[31] & (|(KECCAK_DATA_PERMIT[31] & ~reg_be))) |
+               (addr_hit[32] & (|(KECCAK_DATA_PERMIT[32] & ~reg_be))) |
+               (addr_hit[33] & (|(KECCAK_DATA_PERMIT[33] & ~reg_be))) |
+               (addr_hit[34] & (|(KECCAK_DATA_PERMIT[34] & ~reg_be))) |
+               (addr_hit[35] & (|(KECCAK_DATA_PERMIT[35] & ~reg_be))) |
+               (addr_hit[36] & (|(KECCAK_DATA_PERMIT[36] & ~reg_be))) |
+               (addr_hit[37] & (|(KECCAK_DATA_PERMIT[37] & ~reg_be))) |
+               (addr_hit[38] & (|(KECCAK_DATA_PERMIT[38] & ~reg_be))) |
+               (addr_hit[39] & (|(KECCAK_DATA_PERMIT[39] & ~reg_be))) |
+               (addr_hit[40] & (|(KECCAK_DATA_PERMIT[40] & ~reg_be))) |
+               (addr_hit[41] & (|(KECCAK_DATA_PERMIT[41] & ~reg_be))) |
+               (addr_hit[42] & (|(KECCAK_DATA_PERMIT[42] & ~reg_be))) |
+               (addr_hit[43] & (|(KECCAK_DATA_PERMIT[43] & ~reg_be))) |
+               (addr_hit[44] & (|(KECCAK_DATA_PERMIT[44] & ~reg_be))) |
+               (addr_hit[45] & (|(KECCAK_DATA_PERMIT[45] & ~reg_be))) |
+               (addr_hit[46] & (|(KECCAK_DATA_PERMIT[46] & ~reg_be))) |
+               (addr_hit[47] & (|(KECCAK_DATA_PERMIT[47] & ~reg_be))) |
+               (addr_hit[48] & (|(KECCAK_DATA_PERMIT[48] & ~reg_be))) |
+               (addr_hit[49] & (|(KECCAK_DATA_PERMIT[49] & ~reg_be))) |
+               (addr_hit[50] & (|(KECCAK_DATA_PERMIT[50] & ~reg_be))) |
+               (addr_hit[51] & (|(KECCAK_DATA_PERMIT[51] & ~reg_be))) |
+               (addr_hit[52] & (|(KECCAK_DATA_PERMIT[52] & ~reg_be))) |
+               (addr_hit[53] & (|(KECCAK_DATA_PERMIT[53] & ~reg_be))) |
+               (addr_hit[54] & (|(KECCAK_DATA_PERMIT[54] & ~reg_be))) |
+               (addr_hit[55] & (|(KECCAK_DATA_PERMIT[55] & ~reg_be))) |
+               (addr_hit[56] & (|(KECCAK_DATA_PERMIT[56] & ~reg_be))) |
+               (addr_hit[57] & (|(KECCAK_DATA_PERMIT[57] & ~reg_be))) |
+               (addr_hit[58] & (|(KECCAK_DATA_PERMIT[58] & ~reg_be))) |
+               (addr_hit[59] & (|(KECCAK_DATA_PERMIT[59] & ~reg_be))) |
+               (addr_hit[60] & (|(KECCAK_DATA_PERMIT[60] & ~reg_be))) |
+               (addr_hit[61] & (|(KECCAK_DATA_PERMIT[61] & ~reg_be))) |
+               (addr_hit[62] & (|(KECCAK_DATA_PERMIT[62] & ~reg_be))) |
+               (addr_hit[63] & (|(KECCAK_DATA_PERMIT[63] & ~reg_be))) |
+               (addr_hit[64] & (|(KECCAK_DATA_PERMIT[64] & ~reg_be))) |
+               (addr_hit[65] & (|(KECCAK_DATA_PERMIT[65] & ~reg_be))) |
+               (addr_hit[66] & (|(KECCAK_DATA_PERMIT[66] & ~reg_be))) |
+               (addr_hit[67] & (|(KECCAK_DATA_PERMIT[67] & ~reg_be))) |
+               (addr_hit[68] & (|(KECCAK_DATA_PERMIT[68] & ~reg_be))) |
+               (addr_hit[69] & (|(KECCAK_DATA_PERMIT[69] & ~reg_be))) |
+               (addr_hit[70] & (|(KECCAK_DATA_PERMIT[70] & ~reg_be))) |
+               (addr_hit[71] & (|(KECCAK_DATA_PERMIT[71] & ~reg_be))) |
+               (addr_hit[72] & (|(KECCAK_DATA_PERMIT[72] & ~reg_be))) |
+               (addr_hit[73] & (|(KECCAK_DATA_PERMIT[73] & ~reg_be))) |
+               (addr_hit[74] & (|(KECCAK_DATA_PERMIT[74] & ~reg_be))) |
+               (addr_hit[75] & (|(KECCAK_DATA_PERMIT[75] & ~reg_be))) |
+               (addr_hit[76] & (|(KECCAK_DATA_PERMIT[76] & ~reg_be))) |
+               (addr_hit[77] & (|(KECCAK_DATA_PERMIT[77] & ~reg_be))) |
+               (addr_hit[78] & (|(KECCAK_DATA_PERMIT[78] & ~reg_be))) |
+               (addr_hit[79] & (|(KECCAK_DATA_PERMIT[79] & ~reg_be))) |
+               (addr_hit[80] & (|(KECCAK_DATA_PERMIT[80] & ~reg_be))) |
+               (addr_hit[81] & (|(KECCAK_DATA_PERMIT[81] & ~reg_be))) |
+               (addr_hit[82] & (|(KECCAK_DATA_PERMIT[82] & ~reg_be))) |
+               (addr_hit[83] & (|(KECCAK_DATA_PERMIT[83] & ~reg_be))) |
+               (addr_hit[84] & (|(KECCAK_DATA_PERMIT[84] & ~reg_be))) |
+               (addr_hit[85] & (|(KECCAK_DATA_PERMIT[85] & ~reg_be))) |
+               (addr_hit[86] & (|(KECCAK_DATA_PERMIT[86] & ~reg_be))) |
+               (addr_hit[87] & (|(KECCAK_DATA_PERMIT[87] & ~reg_be))) |
+               (addr_hit[88] & (|(KECCAK_DATA_PERMIT[88] & ~reg_be))) |
+               (addr_hit[89] & (|(KECCAK_DATA_PERMIT[89] & ~reg_be))) |
+               (addr_hit[90] & (|(KECCAK_DATA_PERMIT[90] & ~reg_be))) |
+               (addr_hit[91] & (|(KECCAK_DATA_PERMIT[91] & ~reg_be))) |
+               (addr_hit[92] & (|(KECCAK_DATA_PERMIT[92] & ~reg_be))) |
+               (addr_hit[93] & (|(KECCAK_DATA_PERMIT[93] & ~reg_be))) |
+               (addr_hit[94] & (|(KECCAK_DATA_PERMIT[94] & ~reg_be))) |
+               (addr_hit[95] & (|(KECCAK_DATA_PERMIT[95] & ~reg_be))) |
+               (addr_hit[96] & (|(KECCAK_DATA_PERMIT[96] & ~reg_be))) |
+               (addr_hit[97] & (|(KECCAK_DATA_PERMIT[97] & ~reg_be))) |
+               (addr_hit[98] & (|(KECCAK_DATA_PERMIT[98] & ~reg_be))) |
+               (addr_hit[99] & (|(KECCAK_DATA_PERMIT[99] & ~reg_be)))));
   end
 
   assign din_0_we = addr_hit[0] & reg_we & !reg_error;
@@ -2896,9 +2837,6 @@ module keccak_reg_top #(
   assign dout_48_re = addr_hit[98] & reg_re & !reg_error;
 
   assign dout_49_re = addr_hit[99] & reg_re & !reg_error;
-
-  assign ctrl_we = addr_hit[100] & reg_we & !reg_error;
-  assign ctrl_wd = reg_wdata[0];
 
   // Read data return
   always_comb begin
@@ -3304,14 +3242,6 @@ module keccak_reg_top #(
         reg_rdata_next[31:0] = dout_49_qs;
       end
 
-      addr_hit[100]: begin
-        reg_rdata_next[0] = '0;
-      end
-
-      addr_hit[101]: begin
-        reg_rdata_next[0] = status_qs;
-      end
-
       default: begin
         reg_rdata_next = '1;
       end
@@ -3331,3 +3261,55 @@ module keccak_reg_top #(
   `ASSERT(en2addrHit, (reg_we || reg_re) |-> $onehot0(addr_hit))
 
 endmodule
+
+module keccak_data_reg_top_intf
+#(
+  parameter int AW = 9,
+  localparam int DW = 32
+) (
+  input logic clk_i,
+  input logic rst_ni,
+  REG_BUS.in  regbus_slave,
+  // To HW
+  output keccak_data_reg_pkg::keccak_data_reg2hw_t reg2hw, // Write
+  input  keccak_data_reg_pkg::keccak_data_hw2reg_t hw2reg, // Read
+  // Config
+  input devmode_i // If 1, explicit error return for unmapped register access
+);
+ localparam int unsigned STRB_WIDTH = DW/8;
+
+`include "register_interface/typedef.svh"
+`include "register_interface/assign.svh"
+
+  // Define structs for reg_bus
+  typedef logic [AW-1:0] addr_t;
+  typedef logic [DW-1:0] data_t;
+  typedef logic [STRB_WIDTH-1:0] strb_t;
+  `REG_BUS_TYPEDEF_ALL(reg_bus, addr_t, data_t, strb_t)
+
+  reg_bus_req_t s_reg_req;
+  reg_bus_rsp_t s_reg_rsp;
+  
+  // Assign SV interface to structs
+  `REG_BUS_ASSIGN_TO_REQ(s_reg_req, regbus_slave)
+  `REG_BUS_ASSIGN_FROM_RSP(regbus_slave, s_reg_rsp)
+
+  
+
+  keccak_data_reg_top #(
+    .reg_req_t(reg_bus_req_t),
+    .reg_rsp_t(reg_bus_rsp_t),
+    .AW(AW)
+  ) i_regs (
+    .clk_i,
+    .rst_ni,
+    .reg_req_i(s_reg_req),
+    .reg_rsp_o(s_reg_rsp),
+    .reg2hw, // Write
+    .hw2reg, // Read
+    .devmode_i
+  );
+  
+endmodule
+
+

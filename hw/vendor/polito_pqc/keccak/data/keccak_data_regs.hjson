@@ -1,5 +1,5 @@
 {
-    name: "keccak",
+    name: "keccak_data",
     clock_primary: "clk_i",
     reset_primary: "rst_ni",
     bus_interfaces: [
@@ -33,27 +33,5 @@
             ],
           }
         },
-	{ name: "CTRL"
-	  desc: " Trigger the Keccak "
-	  swaccess: "wo",
-	  hwaccess: "hro",
-    	  //hwqe: "true",
-	  fields: [
-	      { bits: "0", name: "START",
-		desc: "Make the keccack starts"
-	      }
-	  ]	
-	},
-	{ name: "STATUS"
-	  desc: " Contains status information about the Keccak"
-	  swaccess: "ro",
-	  hwaccess: "hwo",
-	  //hwext : "true",
-	  fields: [
-	      { bits: "0", name: "STATUS",
-		desc: "If set output of keccack is valid"
-	      }
-	  ]	
-	}
     ],
 }

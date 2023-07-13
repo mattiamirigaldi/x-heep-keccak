@@ -16,8 +16,10 @@ filesets:
     files:
     - polito_pqc/keccak/utilities/register_interface/include/register_interface/assign.svh
     - polito_pqc/keccak/utilities/register_interface/include/register_interface/typedef.svh
-    - polito_pqc/keccak/rtl/gen_sv/keccak_reg_pkg.sv
-    - polito_pqc/keccak/rtl/gen_sv/keccak_reg_top.sv
+    - polito_pqc/keccak/rtl/gen_sv/keccak_data_reg_pkg.sv
+    - polito_pqc/keccak/rtl/gen_sv/keccak_data_reg_top.sv
+    - polito_pqc/keccak/rtl/gen_sv/keccak_ctrl_reg_pkg.sv
+    - polito_pqc/keccak/rtl/gen_sv/keccak_ctrl_reg_top.sv
     - polito_pqc/keccak/rtl/keccak_cu.sv
     - polito_pqc/keccak/rtl/keccak_top.sv
     file_type: systemVerilogSource
