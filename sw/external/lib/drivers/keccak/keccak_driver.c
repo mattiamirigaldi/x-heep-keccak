@@ -87,21 +87,21 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50])
   uint32_t volatile *Dout_reg_start = (uint32_t*)KECCAK_DOUT_START_ADDR;
   unsigned int instr, cycles, ldstall, jrstall, imstall;
 
-  printf("Interrupt id : %d\n", EXT_INTR_0);
+  // Keccak accelerator send interrupt on ext_intr line 0
+  printf("Keccak interrupt id : %d\n", EXT_INTR_0);
   printf("Init the PLIC...");
   plic_res = plic_Init();
 
   if (plic_res != kPlicOk) {
       return -1;
   }
-  // Keccak accelerator send interrupt on ext_intr line 0
   
   // Set Keccak priority to 1 (target threshold is by default 0) to trigger an interrupt to the target (the processor)
     plic_res = plic_irq_set_priority(EXT_INTR_0, 1);
     if (plic_res == kPlicOk) {
-        printf("success\n");
+        printf("Success\n");
     } else {
-        printf("fail\n;");
+        printf("Fail\n;");
     }
 
   // Enable the interrupt in reg 0 
@@ -120,19 +120,18 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50])
   const uint32_t mask = 1 << 11;//IRQ_EXT_ENABLE_OFFSET;
   CSR_SET_BITS(CSR_REG_MIE, mask);
 
-  printf("!\n");
+  // Load Din in Keccak reg file
   CSR_WRITE(CSR_REG_MCYCLE, 0);
-  printf("!\n");
   for (int i = 0; i<50; i++)
   {
      Din_reg_start[i] = Din[i];
   }
-  printf("!\n");
+  // Starting the Keccak permutation
   asm volatile ("": : : "memory");
   *ctrl_reg = 1 << KECCAK_CTRL_START_BIT;
   asm volatile ("": : : "memory");
   *ctrl_reg = 0 << KECCAK_CTRL_START_BIT;
-  printf("!\n");
+
   // Busy waiting till the Keccak has finished permutation
   //do {
   //  printf(".\n");
@@ -144,14 +143,12 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50])
       wait_for_interrupt();
   }
   printf("Keccak finished...\r\n");
-  printf("!\n");
+  // Gather output results
   for (volatile int i = 0; i<50; i++){
      Dout[i] = Dout_reg_start[i];	
   }
-  printf("!\n");
   // stop the HW counter used for monitoring
   CSR_READ(CSR_REG_MCYCLE, &cycles);
   printf("Number of clock cycles : %d\n", cycles);
   //printf("Number of instructions : %d\nNumber of clock cycles: %d\nCPI: %f%f\n",instr_cnt, cycles_cnt, (float) instr_cnt/cycles_cnt);
-  
 }
