@@ -77,7 +77,7 @@ int main(){
 	D_expected[46] = 0x532483D8;
 	D_expected[49] = 0x0271BFE2;
 	D_expected[48] = 0x84B1B424;
-	printf("Hello Keccak");
+	printf("Hello Keccak\n");
 	KeccakF1600_StatePermute(Din,Dout);	
 
 	for (i = 0; i< 50; i++ ){

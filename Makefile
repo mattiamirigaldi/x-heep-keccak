@@ -52,6 +52,9 @@ ARCH     ?= rv32imc
 # Path relative from the location of sw/Makefile from which to fetch source files. The directory of that file is the default value.
 SOURCE 	 ?= "."
 
+# Application options
+USE_DMA   ?= 1
+
 # 1 external domain for the KECCAK
 EXTERNAL_DOMAINS = 1
 
@@ -108,7 +111,7 @@ app-helloworld:
 	$(MAKE) -C sw x_heep_applications/hello_world/hello_world.hex  TARGET=$(TARGET)
 
 app-keccak:
-	$(MAKE) -C sw applications/keccak_test/main.hex  TARGET=$(TARGET)
+	$(MAKE) -C sw applications/keccak_test/main.hex  TARGET=$(TARGET) USE_DMA=$(USE_DMA)
 
 app-kyber512: 
 	$(MAKE) -C sw applications/kyber512/keygen/keygen.hex TARGET=$(TARGET)

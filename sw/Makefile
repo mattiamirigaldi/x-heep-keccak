@@ -109,8 +109,8 @@ x_heep_applications/hello_world/hello_world.flash_exec.elf: x_heep_applications/
 		-L $(RISCV)/riscv32-unknown-elf/lib \
 		-lc -lm -lgcc -flto -ffunction-sections -fdata-sections -specs=nano.specs
 
-applications/keccak_test/main.elf: applications/keccak_test/main.c 
-	$(RISCV_EXE_PREFIX)gcc -march=rv32imc -o $@ -w -Os -g -nostdlib \
+applications/keccak_test/main.elf: applications/keccak_test/main.c
+	$(RISCV_EXE_PREFIX)gcc -march=rv32imc -o $@ -w -Os -g -nostdlib -D USE_DMA=$(USE_DMA)\
 		$(CUSTOM_GCC_FLAGS) \
 		-DHOST_BUILD \
 		-T linker/link.ld \
@@ -122,7 +122,7 @@ applications/keccak_test/main.elf: applications/keccak_test/main.c
 		$(LIB_BASE) \
 		$(LIB_DRIVERS) \
 		-L $(RISCV)/riscv32-unknown-elf/lib \
-		-lc -lm -lgcc -flto -ffunction-sections -fdata-sections -specs=nano.specs
+		-lc -lm -lgcc -flto -ffunction-sections -fdata-sections -specs=nano.specs \
 
 applications/kyber512/keygen.elf: applications/kyber512/keygen/keygen.c 
 	$(RISCV_EXE_PREFIX)gcc -march=rv32imc -o $@ -w -Os -g -nostdlib \

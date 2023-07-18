@@ -24,6 +24,10 @@
 #define KECCAK_BUSY 0
 #define DATA_SIZE 50
 
+#ifndef USE_DMA
+#define USE_DMA 1
+#endif
+
 // Interrupt controller variables
 plic_result_t plic_res;
 
@@ -33,8 +37,9 @@ void handler_irq_ext(uint32_t id){
 }
 
   
-void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50])
+void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
 {
+#pragma message ("USE_DMA set to: " USE_DMA);
   uint32_t volatile *Din_reg_start = (uint32_t*)KECCAK_DIN_START_ADDR;
   uint32_t volatile *ctrl_reg = (uint32_t*)KECCAK_CTRL_START_ADDR;
   uint32_t volatile *status_reg = (uint32_t*)KECCAK_STATUS_START_ADDR;
@@ -46,21 +51,14 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50])
   
   // DMA variables 
   static uint32_t Din_4B[DATA_SIZE] __attribute__ ((aligned (4)));
-  //static uint32_t copied_data_4B[DATA_SIZE] __attribute__ ((aligned (4))) = { 0 };
   static uint32_t Dout_4B[DATA_SIZE] __attribute__ ((aligned (4))) = { 0 };
 
   uint32_t* ext_addr_4B_PTR = (uint32_t*)KECCAK_DIN_START_ADDR;
-  uint32_t* copied_data_4B = (uint32_t*)KECCAK_DIN_START_ADDR;
-  uint32_t* ext_copied_data_4B;
-  int32_t errors = 0;
-
+ 
   for (int i=0; i<DATA_SIZE; i++){
     Din_4B[i]=Din[i];
    } 
 
-  // In ext_copied_data_4B stored the values copied in DMA transaction
-  ext_copied_data_4B = &ext_addr_4B_PTR[DATA_SIZE+1];
- 
   // Keccak accelerator send interrupt on ext_intr line 0
   printf("Interrupt id : %d\n", EXT_INTR_0);
   printf("Init the PLIC...");
@@ -97,12 +95,14 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50])
   // Starting the performance counter
   CSR_WRITE(CSR_REG_MCYCLE, 0);
 
+  #if USE_DMA == 1
+  printf("Keccak : using DMA\n");
   // The DMA is initialized (i.e. Any current transaction is cleaned.)
   dma_init(NULL);
     
   dma_config_flags_t res;
 
-  printf("tgt_stc ptr: %04x, copied_data_ptr : %04x\n", Din_4B, copied_data_4B);
+  //printf("din_src_ptr: %04x, keccak_din_ptr : %04x\n", Din_4B, ext_addr_4B_PTR);
 
   // First DMA transaction consist on loading Din in Keccak register file
    
@@ -114,7 +114,7 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50])
                               .type       = DMA_DATA_TYPE_WORD,
                               };
   dma_target_t tgt_dst = {
-                              .ptr        = copied_data_4B,
+                              .ptr        = ext_addr_4B_PTR,
                               .inc_du     = 1,
                               .size_du    = DATA_SIZE,
                               .trig       = DMA_TRIG_MEMORY,
@@ -160,27 +160,17 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50])
   }
 
 
-  printf(">> Finished transaction. \n\r");
+  printf(">> Finished transaction Din. \n");
 
-  //for(uint32_t i = 0; i < trans.size_b >> 2; i++ ) {
-  //    if ( copied_data_4B[i] != Din_4B[i] ) {
-  //        printf("ERROR [%d]: %04x != %04x\n\r", i, ext_copied_data_4B[i], Din_4B[i]);
-  //        errors++;
-  //    }
-  //}
+  #else
+  printf("Keccak : not using DMA\n");
+  for (int i = 0; i<50; i++)
+  {
+     Din_reg_start[i] = Din[i];
+  }
+
+  #endif
   
-  //if (errors == 0) {
-  //    printf("DMA address mode in external memory success.\n\r");
-  //} else {
-  //    printf("DMA address mode in external memory failure: %d errors out of %d bytes checked\n\r", errors, trans.size_b );
-  //    return EXIT_FAILURE;
-  //}
-
-  //for (int i = 0; i<50; i++)
-  //{
-  //   Din_reg_start[i] = Din[i];
-  //}
-
   asm volatile ("": : : "memory");
   *ctrl_reg = 1 << KECCAK_CTRL_CTRL_START_BIT;
   asm volatile ("": : : "memory");
@@ -190,11 +180,51 @@ void KeccakF1600_StatePermute(uint32_t Din[50], uint32_t Dout[50])
   while(plic_intr_flag==0) {
       wait_for_interrupt();
   }
-  printf("Keccak finished...\r\n");
+  printf("Keccak finished...\n");
+	 
+  #if USE_DMA == 1
+
+  ext_addr_4B_PTR = (uint32_t*)KECCAK_DOUT_START_ADDR;
+  tgt_src.ptr = ext_addr_4B_PTR;
+  tgt_dst.ptr = Dout_4B;
+
+  //printf("dout_dst_ptr: %04x, keccak_dout_ptr : %04x\n", Dout_4B, ext_addr_4B_PTR);
+
+  // Second DMA transaction consist on reading Dout from Keccak register file
+
+  res = dma_validate_transaction( &trans, DMA_ENABLE_REALIGN, DMA_PERFORM_CHECKS_INTEGRITY );
+  printf("tran: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+  res = dma_load_transaction(&trans);
+  printf("load: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+  res = dma_launch(&trans);
+  printf("laun: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+
+  while( ! dma_is_ready()) {
+      // disable_interrupts
+      // this does not prevent waking up the core as this is controlled by the MIP register
+      CSR_SET_BITS(CSR_REG_MSTATUS, 0x0);
+      if ( dma_is_ready() == 0 ) {
+          wait_for_interrupt();
+          //from here we wake up even if we did not jump to the ISR
+      }
+      CSR_SET_BITS(CSR_REG_MSTATUS, 0x8);
+  }
+
+  printf(">> Finished transaction Dout. \n");
+  
+  for (volatile int i = 0; i<DATA_SIZE; i++){
+      Dout[i] = Dout_4B[i];
+  }
+     
+
+  #else
   for (volatile int i = 0; i<DATA_SIZE; i++){
      Dout[i] = Dout_reg_start[i];
      //printf("Dout[%d]=%04X\n", i, Dout[i]);
   }
+
+  #endif
+
   // stop the HW counter used for monitoring
   CSR_READ(CSR_REG_MCYCLE, &cycles);
   printf("Number of clock cycles : %d\n", cycles);

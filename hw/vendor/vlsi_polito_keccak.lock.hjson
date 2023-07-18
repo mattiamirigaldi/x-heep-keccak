@@ -9,6 +9,6 @@
   upstream:
   {
     url: https://git.vlsilab.polito.it/crypto_accelerators/keccak
-    rev: cc6b3c2620316001e679025611b4dcd30b7806a5
+    rev: d09535b1054bf536150912f62249eac29195d161
   }
 }
