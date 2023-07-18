@@ -34,12 +34,12 @@ module testharness #(
 
   import obi_pkg::*;
   import reg_pkg::*;
-  import testharness_pkg::*;
+  import keccak_x_heep_pkg::*;
   import addr_map_rule_pkg::*;
 
   localparam SWITCH_ACK_LATENCY = 15;
-  localparam EXT_XBAR_NMASTER_RND = USE_EXTERNAL_DEVICE_EXAMPLE ? testharness_pkg::EXT_XBAR_NMASTER : 1;
-  localparam HEEP_EXT_XBAR_NMASTER = USE_EXTERNAL_DEVICE_EXAMPLE ? testharness_pkg::EXT_XBAR_NMASTER : 0;
+  localparam EXT_XBAR_NMASTER_RND = USE_EXTERNAL_DEVICE_EXAMPLE ? keccak_x_heep_pkg::EXT_XBAR_NMASTER : 1;
+  localparam HEEP_EXT_XBAR_NMASTER = USE_EXTERNAL_DEVICE_EXAMPLE ? keccak_x_heep_pkg::EXT_XBAR_NMASTER : 0;
 
   localparam int unsigned LOG_EXT_XBAR_NSLAVE = EXT_XBAR_NSLAVE > 32'd1 ? $clog2(
       EXT_XBAR_NSLAVE
@@ -63,35 +63,6 @@ module testharness #(
 
   logic [EXT_PERIPHERALS_PORT_SEL_WIDTH-1:0] ext_periph_select;
 
-  // External xbar master/slave and peripheral ports
-  obi_req_t [EXT_XBAR_NMASTER_RND-1:0] ext_master_req;
-  obi_req_t [EXT_XBAR_NMASTER_RND-1:0] heep_slave_req;
-  obi_resp_t [EXT_XBAR_NMASTER_RND-1:0] ext_master_resp;
-  obi_resp_t [EXT_XBAR_NMASTER_RND-1:0] heep_slave_resp;
-  obi_req_t heep_core_instr_req;
-  obi_resp_t heep_core_instr_resp;
-  obi_req_t heep_core_data_req;
-  obi_resp_t heep_core_data_resp;
-  obi_req_t heep_debug_master_req;
-  obi_resp_t heep_debug_master_resp;
-  obi_req_t heep_dma_read_ch0_req;
-  obi_resp_t heep_dma_read_ch0_resp;
-  obi_req_t heep_dma_write_ch0_req;
-  obi_resp_t heep_dma_write_ch0_resp;
-  obi_req_t heep_dma_addr_ch0_req;
-  obi_resp_t heep_dma_addr_ch0_resp;
-  obi_req_t [EXT_XBAR_NSLAVE-1:0] ext_slave_req;
-  obi_resp_t [EXT_XBAR_NSLAVE-1:0] ext_slave_resp;
-
-
-  // Since not used an external device with master port 
-  assign ext_master_req[testharness_pkg::EXT_MASTER0_IDX].req = '0;
-  assign ext_master_req[testharness_pkg::EXT_MASTER0_IDX].we = '0;
-  assign ext_master_req[testharness_pkg::EXT_MASTER0_IDX].be = '0;
-  assign ext_master_req[testharness_pkg::EXT_MASTER0_IDX].addr = '0;
-  assign ext_master_req[testharness_pkg::EXT_MASTER0_IDX].wdata = '0;
-
-   
   // External subsystems
   logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0] external_subsystem_powergate_switch;
   logic [core_v_mini_mcu_pkg::EXTERNAL_DOMAINS-1:0] external_subsystem_powergate_switch_ack;
@@ -130,21 +101,6 @@ module testharness #(
       .uart_rx_i(uart_rx),
       .uart_tx_o(uart_tx),
 
-      .ext_xbar_master_req_i(heep_slave_req),
-      .ext_xbar_master_resp_o(heep_slave_resp),
-      .ext_core_instr_req_o(heep_core_instr_req),
-      .ext_core_instr_resp_i(heep_core_instr_resp),
-      .ext_core_data_req_o(heep_core_data_req),
-      .ext_core_data_resp_i(heep_core_data_resp),
-      .ext_debug_master_req_o(heep_debug_master_req),
-      .ext_debug_master_resp_i(heep_debug_master_resp),
-      .ext_dma_read_ch0_req_o(heep_dma_read_ch0_req),
-      .ext_dma_read_ch0_resp_i(heep_dma_read_ch0_resp),
-      .ext_dma_write_ch0_req_o(heep_dma_write_ch0_req),
-      .ext_dma_write_ch0_resp_i(heep_dma_write_ch0_resp),
-      .ext_dma_addr_ch0_req_o(heep_dma_addr_ch0_req),
-      .ext_dma_addr_ch0_resp_i(heep_dma_addr_ch0_resp),
-
       .external_subsystem_powergate_switch_o(external_subsystem_powergate_switch),
       .external_subsystem_powergate_switch_ack_i(external_subsystem_powergate_switch_ack),
       .external_subsystem_powergate_iso_o(external_subsystem_powergate_iso),
@@ -154,39 +110,7 @@ module testharness #(
       .exit_value_o,
       .exit_valid_o
   );
-
-   // Testbench external bus
-  // ----------------------
-  // The external bus connects the external peripherals among them and to
-  // the corresponding X-HEEP slave port (to the internal system bus).
-  ext_bus #(
-      .EXT_XBAR_NMASTER(EXT_XBAR_NMASTER),
-      .EXT_XBAR_NSLAVE (EXT_XBAR_NSLAVE)
-  ) ext_bus_i (
-      .clk_i                    (clk_i),
-      .rst_ni                   (rst_ni),
-      .addr_map_i               (EXT_XBAR_ADDR_RULES),
-      .default_idx_i            (SLOW_MEMORY_IDX[LOG_EXT_XBAR_NSLAVE-1:0]),
-      .heep_core_instr_req_i    (heep_core_instr_req),
-      .heep_core_instr_resp_o   (heep_core_instr_resp),
-      .heep_core_data_req_i     (heep_core_data_req),
-      .heep_core_data_resp_o    (heep_core_data_resp),
-      .heep_debug_master_req_i  (heep_debug_master_req),
-      .heep_debug_master_resp_o (heep_debug_master_resp),
-      .heep_dma_read_ch0_req_i  (heep_dma_read_ch0_req),
-      .heep_dma_read_ch0_resp_o (heep_dma_read_ch0_resp),
-      .heep_dma_write_ch0_req_i (heep_dma_write_ch0_req),
-      .heep_dma_write_ch0_resp_o(heep_dma_write_ch0_resp),
-      .heep_dma_addr_ch0_req_i  (heep_dma_addr_ch0_req),
-      .heep_dma_addr_ch0_resp_o (heep_dma_addr_ch0_resp),
-      .ext_master_req_i         (ext_master_req),
-      .ext_master_resp_o        (ext_master_resp),
-      .heep_slave_req_o         (heep_slave_req),
-      .heep_slave_resp_i        (heep_slave_resp),
-      .ext_slave_req_o          (ext_slave_req),
-      .ext_slave_resp_i         (ext_slave_resp)
-  );
-
+ 
   logic pdm;
 
   //pretending to be SWITCH CELLs that delay by SWITCH_ACK_LATENCY cycles the ACK signal

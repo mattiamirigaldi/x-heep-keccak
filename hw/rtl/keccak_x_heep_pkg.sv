@@ -11,17 +11,13 @@ package keccak_x_heep_pkg;
   import addr_map_rule_pkg::*;
   import core_v_mini_mcu_pkg::*;
 
+  //master idx
+  localparam logic [31:0] EXT_MASTER0_IDX = 0;
+
   // There's no Master o Slave port since Keccak connected as a slave peripheral
   localparam EXT_XBAR_NMASTER = 1;
   // One slave port
   localparam EXT_XBAR_NSLAVE = 1;
-
-  localparam int unsigned LOG_EXT_XBAR_NMASTER = EXT_XBAR_NMASTER > 1 ? $clog2(
-      EXT_XBAR_NMASTER
-  ) : 32'd1;
-  localparam int unsigned LOG_EXT_XBAR_NSLAVE = EXT_XBAR_NSLAVE > 1 ? $clog2(
-      EXT_XBAR_NSLAVE
-  ) : 32'd1;
 
   //slave mmap and idx
   localparam logic [31:0] KECCAK_START_ADDRESS = core_v_mini_mcu_pkg::EXT_SLAVE_START_ADDRESS + 32'h000000;

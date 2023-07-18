@@ -12,12 +12,10 @@ filesets:
     depend:
     - x-heep::packages
     - openhwgroup.org:systems:core-v-mini-mcu
-    - polito::pqc-x-heep
+    - vlsi:polito:keccak
     files:
     - hw/rtl/keccak_x_heep_pkg.sv
     - hw/rtl/keccak_x_heep_top.sv
-    #- hw/rtl/ntt_intt_pwm_x_heep_pkg.sv
-    #- hw/rtl/ntt_intt_pwm_x_heep_top.sv    
     file_type: systemVerilogSource
 
   x_heep_system:
@@ -32,7 +30,7 @@ filesets:
   tb-harness:
     files:
     - tb/tb_util.svh: {is_include_file: true}
-    - tb/testharness_pkg.sv
+    #- tb/testharness_pkg.sv
     - tb/testharness.sv
     - tb/ext_xbar.sv
     - tb/ext_bus.sv 
