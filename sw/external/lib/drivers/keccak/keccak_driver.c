@@ -33,7 +33,7 @@ plic_result_t plic_res;
 
 // Own defined ext interrupt handler
 void handler_irq_ext(uint32_t id){
-  printf("D\n");
+  //printf("D\n");
 }
 
   
@@ -49,47 +49,46 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
   // Performance regs variables
   unsigned int instr, cycles, ldstall, jrstall, imstall;
   
-  // DMA variables 
-  static uint32_t Din_4B[DATA_SIZE] __attribute__ ((aligned (4)));
-  static uint32_t Dout_4B[DATA_SIZE] __attribute__ ((aligned (4))) = { 0 };
-
+  uint32_t* ext_addr_4B_PTR = (uint32_t*)KECCAK_DIN_START_ADDR;
+ 
+  // Keccak accelerator send interrupt on ext_intr line 0
   printf("Interrupt id : %d\n", EXT_INTR_0);
   printf("Init the PLIC...");
   plic_res = plic_Init();
 
-  IF (PLIC_RES != KPLICOK) {
-      RETURN -1;
+  if (plic_res != kPlicOk) {
+      return -1;
   }
   
-  // SET KECCAK PRIORITY TO 1 (TARGET THRESHOLD IS BY DEFAULT 0) TO TRIGGER AN INTERRUPT TO THE TARGET (THE PROCESSOR)
-    PLIC_RES = PLIC_IRQ_SET_PRIORITY(EXT_INTR_0, 1);
-    IF (PLIC_RES == KPLICOK) {
-        PRINTF("SUCCESS\N");
-    } ELSE {
-        PRINTF("FAIL\N;");
+  // Set Keccak priority to 1 (target threshold is by default 0) to trigger an interrupt to the target (the processor)
+    plic_res = plic_irq_set_priority(EXT_INTR_0, 1);
+    if (plic_res == kPlicOk) {
+      //printf("Success\n");
+    } else {
+      //printf("Fail\n;");
     }
 
-  // ENABLE THE INTERRUPT IN REG 0 
-  PRINTF("ENABLE KECCAK INTERRUPT...");
-  PLIC_RES = PLIC_IRQ_SET_ENABLED(EXT_INTR_0, KPLICTOGGLEENABLED);
-  IF (PLIC_RES == KPLICOK) {
-      PRINTF("SUCCESS\N");
-  } ELSE {
-      PRINTF("FAIL\N;");
+  // Enable the interrupt in reg 0 
+  printf("Enable Keccak interrupt...");
+  plic_res = plic_irq_set_enabled(EXT_INTR_0, kPlicToggleEnabled);
+  if (plic_res == kPlicOk) {
+    //printf("Success\n");
+  } else {
+    //printf("Fail\n;");
   }
 
-  // ENABLE INTERRUPT ON PROCESSOR SIDE
-  // ENABLE GLOBAL INTERRUPT FOR MACHINE-LEVEL INTERRUPTS
-  CSR_SET_BITS(CSR_REG_MSTATUS, 0X8);
-  // SET MIE.MEIE BIT TO ONE TO ENABLE MACHINE-LEVEL EXTERNAL INTERRUPTS
-  CONST UINT32_T MASK = 1 << 11;//IRQ_EXT_ENABLE_OFFSET;
-  CSR_SET_BITS(CSR_REG_MIE, MASK);
+  // Enable interrupt on processor side
+  // Enable global interrupt for machine-level interrupts
+  CSR_SET_BITS(CSR_REG_MSTATUS, 0x8);
+  // Set mie.MEIE bit to one to enable machine-level external interrupts
+  const uint32_t mask = 1 << 11;//IRQ_EXT_ENABLE_OFFSET;
+  CSR_SET_BITS(CSR_REG_MIE, mask);
 
-  // STARTING THE PERFORMANCE COUNTER
+  // Starting the performance counter
   CSR_WRITE(CSR_REG_MCYCLE, 0);
 
   #if USE_DMA == 1
-  printf("Keccak : using DMA\n");
+  //printf("Keccak : using DMA\n");
   // The DMA is initialized (i.e. Any current transaction is cleaned.)
   dma_init(NULL);
     
@@ -100,7 +99,7 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
   // First DMA transaction consist on loading Din in Keccak register file
    
   dma_target_t tgt_src = {
-                              .ptr        = Din_4B,
+                              .ptr        = Din,
                               .inc_du     = 1,
                               .size_du    = DATA_SIZE,
                               .trig       = DMA_TRIG_MEMORY,
@@ -130,16 +129,16 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
                               };
   // Create a target pointing at the buffer to be copied. Whole WORDs, no skippings, in memory, no environment.  
 
-  printf("\n\n=====================================\n\n");
-  printf("    TESTING SINGLE MODE WITH KECCAK  ");
-  printf("\n\n=====================================\n\n");
-
+ //printf("\n\n=====================================\n\n");
+ //printf("    TESTING SINGLE MODE WITH KECCAK  ");
+ //printf("\n\n=====================================\n\n");
+ //
   res = dma_validate_transaction( &trans, DMA_ENABLE_REALIGN, DMA_PERFORM_CHECKS_INTEGRITY );
-  printf("tran: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+  //printf("tran: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
   res = dma_load_transaction(&trans);
-  printf("load: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+  //printf("load: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
   res = dma_launch(&trans);
-  printf("laun: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+  //printf("laun: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
 
   while( ! dma_is_ready()) {
       // disable_interrupts
@@ -153,10 +152,10 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
   }
 
 
-  printf(">> Finished transaction Din. \n");
+  //printf(">> Finished transaction Din. \n");
 
   #else
-  printf("Keccak : not using DMA\n");
+  //printf("Keccak : not using DMA\n");
   for (int i = 0; i<50; i++)
   {
      Din_reg_start[i] = Din[i];
@@ -173,24 +172,24 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
   while(plic_intr_flag==0) {
       wait_for_interrupt();
   }
-  printf("Keccak finished...\n");
+  //printf("Keccak finished...\n");
 	 
   #if USE_DMA == 1
 
   ext_addr_4B_PTR = (uint32_t*)KECCAK_DOUT_START_ADDR;
   tgt_src.ptr = ext_addr_4B_PTR;
-  tgt_dst.ptr = Dout_4B;
+  tgt_dst.ptr = Dout;
 
   //printf("dout_dst_ptr: %04x, keccak_dout_ptr : %04x\n", Dout_4B, ext_addr_4B_PTR);
 
   // Second DMA transaction consist on reading Dout from Keccak register file
 
   res = dma_validate_transaction( &trans, DMA_ENABLE_REALIGN, DMA_PERFORM_CHECKS_INTEGRITY );
-  printf("tran: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+  //printf("tran: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
   res = dma_load_transaction(&trans);
-  printf("load: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+  //printf("load: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
   res = dma_launch(&trans);
-  printf("laun: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
+  //printf("laun: %u \t%s\n", res, res == DMA_CONFIG_OK ?  "Ok!" : "Error!");
 
   while( ! dma_is_ready()) {
       // disable_interrupts
@@ -203,13 +202,8 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
       CSR_SET_BITS(CSR_REG_MSTATUS, 0x8);
   }
 
-  printf(">> Finished transaction Dout. \n");
-  
-  for (volatile int i = 0; i<DATA_SIZE; i++){
-      Dout[i] = Dout_4B[i];
-  }
+  //printf(">> Finished transaction Dout. \n");
      
-
   #else
   for (volatile int i = 0; i<DATA_SIZE; i++){
      Dout[i] = Dout_reg_start[i];
@@ -222,7 +216,6 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
   CSR_READ(CSR_REG_MCYCLE, &cycles);
   printf("Number of clock cycles : %d\n", cycles);
   //printf("Number of instructions : %d\nNumber of clock cycles: %d\nCPI: %f%f\n",instr_cnt, cycles_cnt, (float) instr_cnt/cycles_cnt);
+  
 }
-
-
 

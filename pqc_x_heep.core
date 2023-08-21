@@ -257,7 +257,7 @@ targets:
     tools:
       vivado:
         part: xc7z020clg400-1
-    toplevel: [xilinx_keccak_x_heep_top_wrapper]
+    toplevel: [xilinx_keccak_x_heep_txop_wrapper]
 
   pynq-z2-arm-emulation:
     <<: *default_target
