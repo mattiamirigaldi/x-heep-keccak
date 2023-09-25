@@ -20,10 +20,10 @@
         onchip_ls: {
             code: {
                 address: 0x00000000,
-                lenght: 0x00000C800, #minimum size for freeRTOS and clang
+                lenght: 0x00001C800, #minimum size for freeRTOS and clang
             }
             data: {
-                address: 0x00000C800,
+                address: 0x00001C800,
                 lenght: whatisleft, #keyword used to calculate the size as: ram.length - code.lenght
             }
         },

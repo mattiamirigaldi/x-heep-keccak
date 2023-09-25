@@ -61,7 +61,7 @@ module tb_top #(
   // we either load the provided firmware or execute a small test program that
   // doesn't do more than an infinite loop with some I/O
   initial begin : load_prog
-    automatic string firmware, arg_boot_sel, arg_execute_from_flash;
+    automatic string firmware, arg_boot_sel, arg_execute_from_flash, logFile;
 
     if ($value$plusargs("firmware=%s", firmware)) begin
       $display("[TESTBENCH]: loading firmware %0s", firmware);
@@ -71,6 +71,16 @@ module tb_top #(
         $finish;
       end
     end
+
+    //    if ($value$plusargs("logFile=%s", logFile)) begin
+    //      $display("[TESTBENCH]: loading firmware %0s", firmware);
+    //    end else begin
+    //      $display("[TESTBENCH]: no firmware specified");
+    //      if (JTAG_DPI == 0) begin
+    //        $finish;
+    //      end
+    //    end
+
 
     boot_sel = 0;
     if ($test$plusargs("boot_sel")) begin
