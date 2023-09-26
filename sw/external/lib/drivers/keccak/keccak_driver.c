@@ -39,7 +39,7 @@ void handler_irq_ext(uint32_t id){
   
 void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
 {
-#pragma message ("USE_DMA set to: " USE_DMA);
+  #pragma message ("USE_DMA set to: " USE_DMA);
   uint32_t volatile *Din_reg_start = (uint32_t*)KECCAK_DIN_START_ADDR;
   uint32_t volatile *ctrl_reg = (uint32_t*)KECCAK_CTRL_START_ADDR;
   uint32_t volatile *status_reg = (uint32_t*)KECCAK_STATUS_START_ADDR;
@@ -52,8 +52,8 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
   uint32_t* ext_addr_4B_PTR = (uint32_t*)KECCAK_DIN_START_ADDR;
  
   // Keccak accelerator send interrupt on ext_intr line 0
-  printf("Interrupt id : %d\n", EXT_INTR_0);
-  printf("Init the PLIC...");
+  //printf("Interrupt id : %d\n", EXT_INTR_0);
+  //printf("Init the PLIC...");
   plic_res = plic_Init();
 
   if (plic_res != kPlicOk) {
@@ -63,13 +63,13 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
   // Set Keccak priority to 1 (target threshold is by default 0) to trigger an interrupt to the target (the processor)
     plic_res = plic_irq_set_priority(EXT_INTR_0, 1);
     if (plic_res == kPlicOk) {
-      //printf("Success\n");
+        //printf("Success\n");
     } else {
       //printf("Fail\n;");
     }
 
   // Enable the interrupt in reg 0 
-  printf("Enable Keccak interrupt...");
+  //printf("Enable Keccak interrupt...");
   plic_res = plic_irq_set_enabled(EXT_INTR_0, kPlicToggleEnabled);
   if (plic_res == kPlicOk) {
     //printf("Success\n");
@@ -85,7 +85,7 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
   CSR_SET_BITS(CSR_REG_MIE, mask);
 
   // Starting the performance counter
-  CSR_WRITE(CSR_REG_MCYCLE, 0);
+  //CSR_WRITE(CSR_REG_MCYCLE, 0);
 
   #if USE_DMA == 1
   //printf("Keccak : using DMA\n");
@@ -203,6 +203,10 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
   }
 
   //printf(">> Finished transaction Dout. \n");
+  
+  //for (volatile int i = 0; i<DATA_SIZE; i++){
+  //    Dout[i] = Dout_4B[i];
+  //}
      
   #else
   for (volatile int i = 0; i<DATA_SIZE; i++){
@@ -213,8 +217,8 @@ void KeccakF1600_StatePermute(uint32_t* Din, uint32_t* Dout)
   #endif
 
   // stop the HW counter used for monitoring
-  CSR_READ(CSR_REG_MCYCLE, &cycles);
-  printf("Number of clock cycles : %d\n", cycles);
+  //CSR_READ(CSR_REG_MCYCLE, &cycles);
+  //printf("Number of clock cycles : %d\n", cycles);
   //printf("Number of instructions : %d\nNumber of clock cycles: %d\nCPI: %f%f\n",instr_cnt, cycles_cnt, (float) instr_cnt/cycles_cnt);
   
 }

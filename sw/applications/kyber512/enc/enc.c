@@ -3,8 +3,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../api.h"
-#include "../randombytes.h"
+#include "stats.h"
+#include "csr.h"
+
+#include "../include/api.h"
+#include "../include/randombytes.h"
 
 static void printbytes(const uint8_t *x, size_t xlen) {
     size_t i;
@@ -827,15 +830,23 @@ int main(void) {
 	printf("pk:\n");
 	printbytes(pk, PQCLEAN_KYBER512_CLEAN_CRYPTO_PUBLICKEYBYTES);
 
-    // Encapsulation
-    PQCLEAN_KYBER512_CLEAN_crypto_kem_enc(sendb, key_b, pk);
-    printf("Encapsulation done!\n");
+	// Performance regs variables
+	unsigned int instr, cycles, ldstall, jrstall, imstall;
 
+	// Key-pair generation
+	printf("Keypair starts!\n");
+	// Starting the performance counter
+	CSR_WRITE(CSR_REG_MCYCLE, 0);
+
+	// Encapsulation
+	PQCLEAN_KYBER512_CLEAN_crypto_kem_enc(sendb, key_b, pk);
+	CSR_READ(CSR_REG_MCYCLE, &cycles);
+	printf("Encapsulation done!\nNumber of clock cycles : %d\n", cycles);
+	
 	printf("sendb:\n");
 	printbytes(sendb, PQCLEAN_KYBER512_CLEAN_CRYPTO_CIPHERTEXTBYTES);
 	printf("key_b:\n");
-    printbytes(key_b, PQCLEAN_KYBER512_CLEAN_CRYPTO_BYTES);
+	printbytes(key_b, PQCLEAN_KYBER512_CLEAN_CRYPTO_BYTES);
 	    
-
     return 0;
 }

@@ -3,8 +3,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../api.h"
-#include "../randombytes.h"
+#include "stats.h"
+#include "csr.h"
+
+#include "../include/api.h"
+#include "../include/randombytes.h"
 
 static void printbytes(const uint8_t *x, size_t xlen) {
     size_t i;
@@ -2457,19 +2460,26 @@ sendb[765] = 0xc7;
 sendb[766] = 0x30;
 sendb[767] = 0x02;	
 	
+ // Performance regs variables
+ unsigned int instr, cycles, ldstall, jrstall, imstall;
 
-    // Decapsulation    
-	PQCLEAN_KYBER512_CLEAN_crypto_kem_dec(key_a, sendb, sk_a);
-    printf("Decapsulation done!\n");
+ printf("Decapsulation starts!\n");
+ // Starting the performance counter
+ CSR_WRITE(CSR_REG_MCYCLE, 0);
+   
+ // Decapsulation    
+ PQCLEAN_KYBER512_CLEAN_crypto_kem_dec(key_a, sendb, sk_a);
+ CSR_READ(CSR_REG_MCYCLE, &cycles);
+ printf("Decapsulation done!\nNumber of clock cycles : %d\n", cycles);
+   
+ printf("key_a:\n");
+ printbytes(key_a, PQCLEAN_KYBER512_CLEAN_CRYPTO_BYTES);
     
-    printf("key_a:\n");
-    printbytes(key_a, PQCLEAN_KYBER512_CLEAN_CRYPTO_BYTES);
-    
-    for (j = 0; j < PQCLEAN_KYBER512_CLEAN_CRYPTO_BYTES; j++) {
-        if (key_a[j] != key_b[j]) {
-            printf("ERROR\n");
-            return -1;
-        }
-	}
-    return 0;
+ for (j = 0; j < PQCLEAN_KYBER512_CLEAN_CRYPTO_BYTES; j++) {
+   if (key_a[j] != key_b[j]) {
+     printf("ERROR\n");
+     return -1;
+   }
+ }
+ return 0;
 }

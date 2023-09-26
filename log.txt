@@ -1,18 +1,17 @@
-USING MINICONDA base
-make -C sw applications/keccak_test/main.hex  TARGET=sim USE_DMA=1
+USING MINICONDA core-v-mini-mcu
+make -C sw applications/kyber768/enc/enc.hex TARGET=sim
 make[1]: Entering directory '/home/mattia.mirigaldi/projects/pqc_x_heep/sw'
-~/.riscv/bin/riscv32-unknown-elf-gcc -march=rv32imc -o applications/keccak_test/main.elf -w -Os -g -nostdlib \
+/software/x-heep/riscv/bin/riscv32-unknown-elf-gcc -march=rv32imc -o applications/kyber768/enc/enc.elf -w -Os -g -nostdlib \
 	 \
 	-DHOST_BUILD \
 	-T linker/link.ld \
-	-I ~/.riscv/riscv32-unknown-elf/include \
+	-I /software/x-heep/riscv/riscv32-unknown-elf/include \
 	-I device/target/sim/ -I device/lib/drivers/ams/ -I device/lib/drivers/dma/ -I device/lib/drivers/fast_intr_ctrl/ -I device/lib/drivers/gpio/ -I device/lib/drivers/i2c/ -I device/lib/drivers/i2s/ -I device/lib/drivers/pad_control/ -I device/lib/drivers/pdm2pcm/ -I device/lib/drivers/power_manager/ -I device/lib/drivers/rv_plic/ -I device/lib/drivers/rv_timer/ -I device/lib/drivers/soc_ctrl/ -I device/lib/drivers/spi_host/ -I device/lib/drivers/spi_memio/ -I device/lib/drivers/uart/ -I device/lib/base/ -I device/lib/runtime/ -I device/lib/crt/ -I external/lib/drivers/cgra/ -I external/lib/drivers/keccak/ -I external/lib/runtime/ \
 	-static \
 	device/lib/crt/crt0.S device/lib/crt/vectors.S \
-	applications/keccak_test/main.c device/lib/runtime/init.c device/lib/runtime/syscalls.c device/lib/runtime/handler.c \
+	applications/kyber768/enc/enc.c device/lib/runtime/init.c device/lib/runtime/syscalls.c device/lib/runtime/handler.c \
 	device/lib/base/mmio.c device/lib/base/bitfield.c device/lib/base/memory.c \
-	device/lib/drivers/soc_ctrl/soc_ctrl.c device/lib/drivers/uart/uart.c device/lib/drivers/rv_plic/rv_plic.c device/lib/drivers/rv_timer/rv_timer.c device/lib/drivers/gpio/gpio.c device/lib/drivers/i2c/i2c.c device/lib/drivers/dma/dma.c device/lib/drivers/power_manager/power_manager.c device/lib/drivers/fast_intr_ctrl/fast_intr_ctrl.c  device/lib/drivers/spi_host/spi_host.c device/lib/drivers/pad_control/pad_control.c external/lib/drivers/keccak/keccak_driver.c \
-	-L ~/.riscv/riscv32-unknown-elf/lib \
-	-lc -lm -lgcc -flto -ffunction-sections -fdata-sections -specs=nano.specs \
-
+	device/lib/drivers/soc_ctrl/soc_ctrl.c device/lib/drivers/uart/uart.c device/lib/drivers/rv_plic/rv_plic.c device/lib/drivers/rv_timer/rv_timer.c device/lib/drivers/gpio/gpio.c device/lib/drivers/i2c/i2c.c device/lib/drivers/dma/dma.c device/lib/drivers/power_manager/power_manager.c device/lib/drivers/fast_intr_ctrl/fast_intr_ctrl.c  device/lib/drivers/spi_host/spi_host.c device/lib/drivers/pad_control/pad_control.c external/lib/drivers/keccak/keccak_driver.c applications/kyber512/drivers/cbd.c applications/kyber512/drivers/polyvec.c applications/kyber512/drivers/fips202.c applications/kyber512/drivers/ntt.c applications/kyber512/drivers/reduce.c applications/kyber512/drivers/verify.c applications/kyber512/drivers/poly.c applications/kyber512/drivers/kem.c applications/kyber512/drivers/indcpa.c applications/kyber512/drivers/symmetric-shake.c applications/kyber512/drivers/randombytes.c applications/kyber768/drivers/cbd.c applications/kyber768/drivers/polyvec.c applications/kyber768/drivers/fips202.c applications/kyber768/drivers/ntt.c applications/kyber768/drivers/reduce.c applications/kyber768/drivers/verify.c applications/kyber768/drivers/poly.c applications/kyber768/drivers/kem.c applications/kyber768/drivers/indcpa.c applications/kyber768/drivers/symmetric-shake.c applications/kyber768/drivers/randombytes.c applications/kyber1024/drivers/cbd.c applications/kyber1024/drivers/fips202.c applications/kyber1024/drivers/ntt.c applications/kyber1024/drivers/reduce.c applications/kyber1024/drivers/verify.c applications/kyber1024/drivers/poly.c applications/kyber1024/drivers/kem.c applications/kyber1024/drivers/indcpa.c applications/kyber1024/drivers/symmetric-shake.c applications/kyber1024/drivers/randombytes.c applications/kyber1024/drivers/polyvec.c \
+	-L /software/x-heep/riscv/riscv32-unknown-elf/lib \
+	-lc -lm -lgcc -flto -ffunction-sections -fdata-sections -specs=nano.specs
 make[1]: Leaving directory '/home/mattia.mirigaldi/projects/pqc_x_heep/sw'

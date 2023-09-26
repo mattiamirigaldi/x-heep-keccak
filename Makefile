@@ -58,7 +58,16 @@ USE_DMA   ?= 1
 # 1 external domain for the KECCAK
 EXTERNAL_DOMAINS = 1
 
+# Build test directory
+TEST_DIR ?= 
+
 ## @section Installation
+
+MEMORY_BANKS = 12
+
+## Kyer sec level
+SEC_LEVEL ?= 512
+
 
 ## Generates mcu files core-v-mini-mcu files and build the design with fusesoc
 ## @param CPU=[cv32e20(default),cv32e40p,cv32e40x]
@@ -113,8 +122,36 @@ app-helloworld:
 app-keccak:
 	$(MAKE) -C sw applications/keccak_test/main.hex  TARGET=$(TARGET) USE_DMA=$(USE_DMA)
 
-app-kyber512: 
-	$(MAKE) -C sw applications/kyber512/keygen/keygen.hex TARGET=$(TARGET)
+########################## KYBER-512 ##########################
+app-kyber512-keygen: 
+	$(MAKE) -C sw applications/kyber512/keygen/keygen.hex TARGET=$(TARGET) SEC_LEVEL=512
+
+app-kyber512-enc: 
+	$(MAKE) -C sw applications/kyber512/enc/enc.hex TARGET=$(TARGET)  SEC_LEVEL=512
+
+app-kyber512-dec: 
+	$(MAKE) -C sw applications/kyber512/dec/dec.hex TARGET=$(TARGET)  SEC_LEVEL=512
+
+########################## KYBER-768 ##########################
+app-kyber768-keygen: 
+	$(MAKE) -C sw applications/kyber768/keygen/keygen.hex TARGET=$(TARGET)  SEC_LEVEL=768
+
+app-kyber768-enc: 
+	$(MAKE) -C sw applications/kyber768/enc/enc.hex TARGET=$(TARGET)  SEC_LEVEL=768
+
+app-kyber768-dec: 
+	$(MAKE) -C sw applications/kyber768/dec/dec.hex TARGET=$(TARGET)  SEC_LEVEL=768
+
+
+########################## KYBER-1024 ##########################
+app-kyber1024-keygen: 
+	$(MAKE) -C sw applications/kyber1024/keygen/keygen.hex TARGET=$(TARGET) SEC_LEVEL=1024
+
+app-kyber1024-enc: 
+	$(MAKE) -C sw applications/kyber1024/enc/enc.hex TARGET=$(TARGET)  SEC_LEVEL=1024
+
+app-kyber1024-dec: 
+	$(MAKE) -C sw applications/kyber1024/dec/dec.hex TARGET=$(TARGET)  SEC_LEVEL=1024
 
 # Tools specific fusesoc call
 
@@ -155,11 +192,85 @@ run-keccak-questasim: mcu-gen questasim-sim app-keccak
 	cat uart0.log; \
 	cd ../../..;
 
-run-kyber768keygen: mcu-gen verilator-sim
-	cd ./build/openhwgroup.org_systems_core-v-mini-mcu_0/sim-verilator; \
-	./Vtestharness +firmware=../../../sw/build/main.hex; \
+########################## KYBER-512 ##########################
+
+run-kyber512-keygen-questasim: mcu-gen questasim-sim app-kyber512-keygen
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
+	make run PLUSARGS="c firmware=../../../sw/applications/kyber512/keygen/keygen.hex"; \
 	cat uart0.log; \
+	mv uart0.log keygen512.log; \
+	mv keygen512.log ../../../results; \
 	cd ../../..;
+
+run-kyber512-enc-questasim: mcu-gen questasim-sim app-kyber512-enc
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
+	make run PLUSARGS="c firmware=../../../sw/applications/kyber512/enc/enc.hex"; \
+	cat uart0.log; \
+	mv uart0.log enc512.log; \
+	mv enc512.log ../../../results; \
+	cd ../../..;
+
+run-kyber512-dec-questasim: mcu-gen questasim-sim app-kyber512-dec
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
+	make run PLUSARGS="c firmware=../../../sw/applications/kyber512/dec/dec.hex"; \
+	cat uart0.log; \
+	mv uart0.log dec512.log; \
+	mv dec512.log ../../../results; \
+	cd ../../..;
+
+########################## KYBER-768 ##########################
+
+run-kyber768-keygen-questasim: mcu-gen questasim-sim app-kyber768-keygen
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
+	make run PLUSARGS="c firmware=../../../sw/applications/kyber768/keygen/keygen.hex"; \
+	cat uart0.log; \
+	mv uart0.log keygen768.log; \
+	mv keygen768.log ../../../results; \
+	cd ../../..;
+
+run-kyber768-enc-questasim: mcu-gen questasim-sim app-kyber768-enc
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
+	make run PLUSARGS="c firmware=../../../sw/applications/kyber768/enc/enc.hex"; \
+	cat uart0.log; \
+	mv uart0.log enc768.log; \
+	mv enc768.log ../../../results; \
+	cd ../../..;
+
+run-kyber768-dec-questasim: mcu-gen questasim-sim app-kyber768-dec
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
+	make run PLUSARGS="c firmware=../../../sw/applications/kyber768/dec/dec.hex"; \
+	cat uart0.log; \
+	mv uart0.log dec768.log; \
+	mv dec768.log ../../../results; \
+	cd ../../..;
+
+
+########################## KYBER-1024 ##########################
+
+run-kyber1024-keygen-questasim: mcu-gen questasim-sim app-kyber1024-keygen
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
+	make run PLUSARGS="c firmware=../../../sw/applications/kyber1024/keygen/keygen.hex"; \
+	cat uart0.log; \
+	mv uart0.log keygen1024.log; \
+	mv keygen1024.log ../../../results; \
+	cd ../../..;
+
+run-kyber1024-enc-questasim: mcu-gen questasim-sim app-kyber1024-enc
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
+	make run PLUSARGS="c firmware=../../../sw/applications/kyber1024/enc/enc.hex"; \
+	cat uart0.log; \
+	mv uart0.log enc1024.log; \
+	mv enc1024.log ../../../results; \
+	cd ../../..;
+
+run-kyber1024-dec-questasim: mcu-gen questasim-sim app-kyber1024-dec
+	cd ./build/polito_systems_keccak_pqc_0/sim-modelsim; \
+	make run PLUSARGS="c firmware=../../../sw/applications/kyber1024/dec/dec.hex"; \
+	cat uart0.log; \
+	mv uart0.log dec1024.log; \
+	mv dec1024.log ../../../results; \
+	cd ../../..;
+
 
 ## @section Vivado
 
